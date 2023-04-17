@@ -7,7 +7,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
 	//accounts routes
-	s.HandleFunc("/user", middleware.MiddlewareJSON(r.GetUserAcounts)).Methods("POST")
+	s.HandleFunc("/connected", middleware.MiddlewareJSON(r.GetUserConnectedAccounts)).Methods("GET")
 
 	//trades
 	s.HandleFunc("/active_trades", middleware.MiddlewareJSON(r.GetOpenTrades)).Methods("GET")
