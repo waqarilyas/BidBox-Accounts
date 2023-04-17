@@ -1,4 +1,6 @@
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
+github.com/ahmed-023/bitget-helpers v0.0.1 h1:6j2b3+Q+eDOfKTSgy7GSnJ0CBHyDhvppb57+7ZxZh6I=
+github.com/ahmed-023/bitget-helpers v0.0.1/go.mod h1:RG9y12RTSz76CcIRY8sFr95/GlupeOOFZmxU9vKpnGI=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/antonfisher/nested-logrus-formatter v1.3.1 h1:NFJIr+pzwv5QLHTPyKz9UMEoHck02Q9L0FP13b/xSbQ=
 github.com/antonfisher/nested-logrus-formatter v1.3.1/go.mod h1:6WTfyWFkBc9+zyBaKIqRrg/KwMqBbodBjgbHjDz7zjA=
