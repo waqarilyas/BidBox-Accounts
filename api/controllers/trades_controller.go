@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -78,7 +77,6 @@ func getTradeData() ([]Data, error) {
 	if err != nil {
 		return []Data{}, err
 	}
-	fmt.Println(string(body))
 
 	// Parse the API response into a AllPositionsResponse struct
 	var resp Positions
