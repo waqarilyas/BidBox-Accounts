@@ -12,6 +12,5 @@ func (r *Server) initializeRoutes() {
 	//trades
 	s.HandleFunc("/active_trades", middleware.MiddlewareJSON(r.GetOpenTrades)).Methods("GET")
 	s.HandleFunc("/history", middleware.MiddlewareJSON(r.GetClosedTrades)).Methods("GET")
-	s.HandleFunc("/connected", middleware.MiddlewareJSON(r.GetUserConnectedAccounts)).Methods("GET")
 
 }
