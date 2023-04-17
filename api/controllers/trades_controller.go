@@ -13,35 +13,36 @@ import (
 	helpers "github.com/ahmed-023/bitget-helpers"
 )
 
+type Data struct {
+	MarginCoin        string `json:"marginCoin"`
+	Symbol            string `json:"symbol"`
+	HoldSide          string `json:"holdSide"`
+	OpenDelegateCount string `json:"openDelegateCount"`
+	Margin            string `json:"margin"`
+	Available         string `json:"available"`
+	Locked            string `json:"locked"`
+	Total             string `json:"total"`
+	Leverage          int    `json:"leverage"`
+	AchievedProfits   string `json:"achievedProfits"`
+	AverageOpenPrice  string `json:"averageOpenPrice"`
+	MarginMode        string `json:"marginMode"`
+	HoldMode          string `json:"holdMode"`
+	UnrealizedPL      string `json:"unrealizedPL"`
+	LiquidationPrice  string `json:"liquidationPrice"`
+	KeepMarginRate    string `json:"keepMarginRate"`
+	MarketPrice       string `json:"marketPrice"`
+	CTime             string `json:"cTime"`
+}
+
 type Positions struct {
 	Code        string `json:"code"`
 	Msg         string `json:"msg"`
 	RequestTime int    `json:"requestTime"`
-	Data        []struct {
-		MarginCoin        string `json:"marginCoin"`
-		Symbol            string `json:"symbol"`
-		HoldSide          string `json:"holdSide"`
-		OpenDelegateCount string `json:"openDelegateCount"`
-		Margin            string `json:"margin"`
-		Available         string `json:"available"`
-		Locked            string `json:"locked"`
-		Total             string `json:"total"`
-		Leverage          int    `json:"leverage"`
-		AchievedProfits   string `json:"achievedProfits"`
-		AverageOpenPrice  string `json:"averageOpenPrice"`
-		MarginMode        string `json:"marginMode"`
-		HoldMode          string `json:"holdMode"`
-		UnrealizedPL      string `json:"unrealizedPL"`
-		LiquidationPrice  string `json:"liquidationPrice"`
-		KeepMarginRate    string `json:"keepMarginRate"`
-		MarketPrice       string `json:"marketPrice"`
-		CTime             string `json:"cTime"`
-	} `json:"data"`
+	Data        []Data `json:"data"`
 }
 
-func (server *Server) GetActiveTrades(w http.ResponseWriter, r *http.Request) {
+func getTradeData() ([]Data, error) {
 	// Make API call to get all positions
-	// ...
 	api_key := os.Getenv("API_KEY")
 	secret_key := os.Getenv("SECRET_KEY")
 	passphrase := os.Getenv("PASSPHRASE")
@@ -55,8 +56,7 @@ func (server *Server) GetActiveTrades(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		return []Data{}, err
 	}
 
 	server_time := helpers.GetBitgetServerTimeStamp()
@@ -70,15 +70,13 @@ func (server *Server) GetActiveTrades(w http.ResponseWriter, r *http.Request) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return []Data{}, err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return []Data{}, err
 	}
 	fmt.Println(string(body))
 
@@ -86,19 +84,64 @@ func (server *Server) GetActiveTrades(w http.ResponseWriter, r *http.Request) {
 	var resp Positions
 	if err := json.Unmarshal(body, &resp); err != nil {
 		// handle error
-		log.Fatal("parse error")
+		return []Data{}, err
 	}
 
+	return resp.Data, nil
+}
+
+func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request) {
+	resp, err := getTradeData()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var open_trades []Data
 	// Iterate through each position in the response and print whether it's open or closed
-	for _, pos := range resp.Data {
+	for _, pos := range resp {
 		if pos.HoldSide == "long" || pos.HoldSide == "short" {
 			if total, err := strconv.ParseFloat(pos.Total, 64); err == nil && total > 0 {
-				fmt.Printf("%s %s position is open\n", pos.HoldSide, pos.Symbol)
-			} else {
-				fmt.Printf("%s %s position is closed\n", pos.HoldSide, pos.Symbol)
+				open_trades = append(open_trades, pos)
 			}
 		}
 	}
 
-	// ...
+	json, err := json.Marshal(open_trades)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
+}
+
+func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request) {
+	resp, err := getTradeData()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var closed_trades []Data
+	// Iterate through each position in the response and print whether it's open or closed
+	for _, pos := range resp {
+		if pos.HoldSide == "long" || pos.HoldSide == "short" {
+			if total, err := strconv.ParseFloat(pos.Total, 64); err == nil && total > 0 {
+				continue
+			} else {
+				closed_trades = append(closed_trades, pos)
+			}
+		}
+	}
+
+	json, err := json.Marshal(closed_trades)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }
