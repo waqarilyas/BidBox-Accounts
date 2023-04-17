@@ -11,7 +11,7 @@ import (
 )
 
 func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
-	response.JSON(w, http.StatusOK, "")
+	response.JSON(w, http.StatusOK, "Accounts Service")
 }
 
 type UserConnectedAccountsRequest struct {
@@ -19,7 +19,6 @@ type UserConnectedAccountsRequest struct {
 }
 
 func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request) {
-
 	email := r.URL.Query().Get("email")
 	if email == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
