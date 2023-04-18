@@ -53,3 +53,14 @@ func (e *Accounts) SaveAccount(db *gorm.DB) (*Accounts, error) {
 	}
 	return e, nil
 }
+
+func (e *Accounts) GetAccountByApiKeyId(db *gorm.DB, apiKeyId uuid.UUID) (*Accounts, error) {
+	err := db.Debug().Model(Accounts{}).Where("api_key_id = ?", apiKeyId).Take(&e).Error
+	if err != nil {
+		return &Accounts{}, err
+	}
+	if gorm.IsRecordNotFoundError(err) {
+		return &Accounts{}, errors.New("account not found")
+	}
+	return e, nil
+}

@@ -6,6 +6,7 @@ func (r *Server) initializeRoutes() {
 	s := r.Router.PathPrefix("/accounts").Subrouter()
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 	//accounts routes
+	s.HandleFunc("/user", middleware.MiddlewareJSON(r.GetUserBalanceByExchange)).Methods("GET")
 	s.HandleFunc("/connected", middleware.MiddlewareJSON(r.GetUserConnectedAccounts)).Methods("GET")
 
 	//trades
