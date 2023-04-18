@@ -17,6 +17,13 @@ func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
 type UserConnectedAccountsRequest struct {
 	Email string `json:"email"`
 }
+type ExchangeResponse struct {
+	Name      string `json:"name"`
+	Short     string `json:"short"`
+	ImageSrc  string `json:"image_src"`
+	Id        int    `json:"id"`
+	Connected bool   `json:"connected"`
+}
 
 func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
@@ -47,25 +54,37 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	responseMap := make(map[string]string)
-	for _, e := range *exchanges {
-		responseMap[e.Short] = "Not Connected"
+	exchangeResponses := make([]ExchangeResponse, len(*exchanges))
+
+	for i, e := range *exchanges {
+		exchangeResponses[i] = ExchangeResponse{
+			Name:      e.Name,
+			Short:     e.Short,
+			ImageSrc:  e.ImageSrc,
+			Id:        int(e.Id.ID()),
+			Connected: false,
+		}
 	}
 
 	//get keys by user id
 	key := models.Key{}
 	keys, err := key.FindKeysByUserId(server.DB, userRes.Id)
 	if err != nil {
-		response.JSON(w, http.StatusOK, responseMap)
+		response.JSON(w, http.StatusOK, exchangeResponses)
 		return
 	}
 
 	for _, value := range *keys {
-		responseMap[value.Service] = "Connected"
+		for j, exchangeResponse := range exchangeResponses {
+			if exchangeResponse.Short == value.Service {
+				exchangeResponses[j].Connected = true
+				break
+			}
+		}
 	}
 
 	// return response as JSON
-	response.JSON(w, http.StatusOK, responseMap)
+	response.JSON(w, http.StatusOK, exchangeResponses)
 }
 
 func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request) {
