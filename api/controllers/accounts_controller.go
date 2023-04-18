@@ -37,14 +37,6 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	//get user by email address
-	user := models.User{}
-	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-		return
-	}
-
 	//get all exchanges
 	exchange := models.Exchanges{}
 	exchanges, err := exchange.FindAllExchanges(server.DB)
@@ -64,6 +56,16 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 			Id:        int(e.Id.ID()),
 			Connected: false,
 		}
+	}
+
+	//get user by email address
+	user := models.User{}
+	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
+	if err != nil {
+		// response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
+		response.JSON(w, http.StatusOK, exchangeResponses)
+
+		return
 	}
 
 	//get keys by user id
@@ -144,6 +146,19 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 }
 
 func (server *Server) GetSupportedExchange(w http.ResponseWriter, r *http.Request) {
+	exchange := models.Exchanges{}
+	exchanges, err := exchange.FindAllExchanges(server.DB)
+	if err != nil {
+		// if there are no connected accounts, return a default response
+		response.ERROR(w, http.StatusBadRequest, errors.New("no exchanges Found"))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, exchanges)
+
+}
+
+func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
 	exchange := models.Exchanges{}
 	exchanges, err := exchange.FindAllExchanges(server.DB)
 	if err != nil {
