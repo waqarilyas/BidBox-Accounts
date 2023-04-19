@@ -2,14 +2,18 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	"strings"
 
 	"strconv"
 
 	helpers "github.com/ahmed-023/bitget-helpers"
+	"github.com/asaskevich/govalidator"
+	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
+	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
 type Data struct {
@@ -40,12 +44,7 @@ type Positions struct {
 	Data        []Data `json:"data"`
 }
 
-func getTradeData() ([]Data, error) {
-	// Make API call to get all positions
-	api_key := os.Getenv("API_KEY")
-	secret_key := os.Getenv("SECRET_KEY")
-	passphrase := os.Getenv("PASSPHRASE")
-
+func getTradeData(api_key string, secret_key string, passphrase string) ([]Data, error) {
 	host := "https://api.bitget.com"
 	path := "/api/mix/v1/position/allPosition?productType=sumcbl"
 	url := host + path
@@ -89,7 +88,52 @@ func getTradeData() ([]Data, error) {
 }
 
 func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request) {
-	resp, err := getTradeData()
+
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
+		return
+	}
+
+	if !govalidator.IsEmail(email) {
+		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
+		return
+	}
+
+	//get keys by user id
+	key := models.Key{}
+	keys, err := key.FindKeysByEmail(server.DB, email)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, errors.New("User not found"))
+		return
+	}
+
+	var api_key string
+	var secret_key string
+	var passphrase string
+	for _, v := range *keys {
+		if strings.ToLower(v.Service) != "bitget" {
+			response.JSON(w, http.StatusNoContent, errors.New("Exchange coming soon"))
+			return
+		} else {
+			api_key, err = helpers.DecryptStrings(v.ApiKey)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			secret_key, err = helpers.DecryptStrings(v.SecretKey)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			passphrase, err = helpers.DecryptStrings(v.Passphrase)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+		}
+	}
+	resp, err := getTradeData(api_key, secret_key, passphrase)
 
 	if err != nil {
 		log.Fatal(err)
@@ -116,11 +160,51 @@ func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request) {
-	resp, err := getTradeData()
-
-	if err != nil {
-		log.Fatal(err)
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
+		return
 	}
+
+	if !govalidator.IsEmail(email) {
+		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
+		return
+	}
+
+	//get keys by user id
+	key := models.Key{}
+	keys, err := key.FindKeysByEmail(server.DB, email)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, errors.New("User not found"))
+		return
+	}
+
+	var api_key string
+	var secret_key string
+	var passphrase string
+	for _, v := range *keys {
+		if strings.ToLower(v.Service) != "bitget" {
+			response.JSON(w, http.StatusNoContent, errors.New("Exchange coming soon"))
+			return
+		} else {
+			api_key, err = helpers.DecryptStrings(v.ApiKey)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			secret_key, err = helpers.DecryptStrings(v.SecretKey)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			passphrase, err = helpers.DecryptStrings(v.Passphrase)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+		}
+	}
+	resp, err := getTradeData(api_key, secret_key, passphrase)
 
 	var closed_trades []Data
 	// Iterate through each position in the response and print whether it's open or closed
