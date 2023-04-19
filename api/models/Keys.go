@@ -45,6 +45,15 @@ func (u *Key) FindKeysByUserId(db *gorm.DB, uid uuid.UUID) (*[]Key, error) {
 	return &Keys, nil
 }
 
+func (u *Key) FindKeysByUserEmail(db *gorm.DB, email string) (*[]Key, error) {
+	Keys := []Key{}
+	err := db.Debug().Model(Key{}).Where("user_email = ?", email).Find(&Keys).Error
+	if err != nil {
+		return &[]Key{}, err
+	}
+	return &Keys, nil
+}
+
 func (u *Key) FindKeyByUserIdAndShort(db *gorm.DB, uid uuid.UUID, service string) (*Key, error) {
 	Keys := Key{}
 	err := db.Debug().Model(Key{}).Where("uid = ? AND service = ? ", uid, service).Find(&Keys).Error

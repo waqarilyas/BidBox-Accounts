@@ -59,18 +59,18 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 	}
 
 	//get user by email address
-	user := models.User{}
-	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	if err != nil {
-		// response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-		response.JSON(w, http.StatusOK, exchangeResponses)
+	// user := models.User{}
+	// userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
+	// if err != nil {
+	// 	// response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
+	// 	response.JSON(w, http.StatusOK, exchangeResponses)
 
-		return
-	}
+	// 	return
+	// }
 
 	//get keys by user id
 	key := models.Key{}
-	keys, err := key.FindKeysByUserId(server.DB, userRes.Id)
+	keys, err := key.FindKeysByUserEmail(server.DB, email)
 	if err != nil {
 		response.JSON(w, http.StatusOK, exchangeResponses)
 		return
