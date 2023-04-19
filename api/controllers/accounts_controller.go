@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
@@ -108,12 +107,12 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 	}
 
 	//get user by email address
-	user := models.User{}
-	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-		return
-	}
+	// user := models.User{}
+	// userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
+	// 	return
+	// }
 
 	//get all exchanges
 	exchangeMod := models.Exchanges{}
@@ -125,7 +124,7 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 
 	//get keys by user id
 	key := models.Key{}
-	keys, err := key.FindKeyByUserIdAndShort(server.DB, userRes.Id, dbExchange.Short)
+	keys, err := key.FindKeyByUserEmailAndShort(server.DB, email, dbExchange.Short)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
 		return

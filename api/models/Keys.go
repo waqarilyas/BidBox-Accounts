@@ -66,3 +66,16 @@ func (u *Key) FindKeyByUserIdAndShort(db *gorm.DB, uid uuid.UUID, service string
 	}
 	return &Keys, nil
 }
+
+func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service string) (*Key, error) {
+	Keys := Key{}
+	err := db.Debug().Model(Key{}).Where("user_email = ? AND service = ? ", email, service).Find(&Keys).Error
+	if err != nil {
+		return &Key{}, err
+	}
+
+	if gorm.IsRecordNotFoundError(err) {
+		return &Key{}, errors.New("no connected keys found")
+	}
+	return &Keys, nil
+}
