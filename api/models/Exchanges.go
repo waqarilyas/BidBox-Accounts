@@ -12,6 +12,7 @@ type Exchanges struct {
 	Name     string    `gorm:"size:255;not null" json:"name"`
 	ImageSrc string    `gorm:"not null;unique" json:"image_src"`
 	Short    string    `gorm:"not null;unique" json:"short"`
+	IsActive bool      `gorm:"" json:"is_active"`
 }
 
 func (e *Exchanges) FindAllExchanges(db *gorm.DB) (*[]Exchanges, error) {

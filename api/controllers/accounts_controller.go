@@ -22,6 +22,7 @@ type ExchangeResponse struct {
 	ImageSrc  string `json:"image_src"`
 	Id        int    `json:"id"`
 	Connected bool   `json:"connected"`
+	IsActive  bool   `json:"is_active"`
 }
 
 func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +55,7 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 			ImageSrc:  e.ImageSrc,
 			Id:        int(e.Id.ID()),
 			Connected: false,
+			IsActive:  e.IsActive,
 		}
 	}
 
