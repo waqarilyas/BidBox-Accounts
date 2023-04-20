@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
@@ -25,17 +24,7 @@ type ExchangeResponse struct {
 	IsActive  bool   `json:"is_active"`
 }
 
-func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
+func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get all exchanges
 	exchange := models.Exchanges{}
@@ -59,16 +48,6 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	//get user by email address
-	// user := models.User{}
-	// userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	// if err != nil {
-	// 	// response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-	// 	response.JSON(w, http.StatusOK, exchangeResponses)
-
-	// 	return
-	// }
-
 	//get keys by user id
 	key := models.Key{}
 	keys, err := key.FindKeysByUserEmail(server.DB, email)
@@ -90,31 +69,13 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusOK, exchangeResponses)
 }
 
-func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
+func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request, email string) {
 	exchange := r.URL.Query().Get("exchange")
 
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
 	if exchange == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
 		return
 	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
-
-	//get user by email address
-	// user := models.User{}
-	// userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	// if err != nil {
-	// 	response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-	// 	return
-	// }
 
 	//get all exchanges
 	exchangeMod := models.Exchanges{}

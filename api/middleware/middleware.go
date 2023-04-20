@@ -2,13 +2,18 @@ package middleware
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/go-playground/validator/v10"
+	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 	// "github.com/kryptomind/bidboxapi/auth/api/auth"
 )
+
+type emailNext func(http.ResponseWriter, *http.Request, string)
 
 var validate = validator.New()
 
@@ -27,6 +32,25 @@ func MiddlewareAuth(next http.HandlerFunc) http.HandlerFunc {
 		// 	return
 		// }
 		next(w, r)
+	}
+}
+
+func ValidateEmail(next emailNext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		r.Header.Set("Content-Type", "application/json")
+
+		email := r.URL.Query().Get("email")
+		if email == "" {
+			response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
+			return
+		}
+
+		if !govalidator.IsEmail(email) {
+			response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
+			return
+		}
+		next(w, r, email)
 	}
 }
 

@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	helpers "github.com/ahmed-023/bitget-helpers"
-	"github.com/asaskevich/govalidator"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
@@ -38,23 +37,11 @@ type OrderResponse struct {
 	} `json:"data"`
 }
 
-func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request) {
+func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request, email string) {
 	var order Order
 	err := json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
-	log.Print(order.Side)
-
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
 		return
 	}
 
@@ -102,11 +89,11 @@ func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-  response := map[string]string{"client_id": orderResp.Data.ClientOid, "order_id": orderResp.Data.OrderID} 
-  json_val, _ := json.Marshal(response)
+	response := map[string]string{"client_id": orderResp.Data.ClientOid, "order_id": orderResp.Data.OrderID}
+	json_val, _ := json.Marshal(response)
 
-  w.Header().Set("Content-Type", "application/json")
-  w.Write(json_val)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json_val)
 }
 
 func GenerateBitgetSignature(apiSecret string, apiKey string, passphrase string, method string, uri string, timestamp string, requestBody string) string {
@@ -154,7 +141,7 @@ func NewOrder(api_key string, secret_key string, passphrase string, order *Order
 		log.Fatal(err)
 		return ""
 	}
- 
+
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)

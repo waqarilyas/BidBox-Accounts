@@ -13,7 +13,6 @@ import (
 	"strconv"
 
 	helpers "github.com/ahmed-023/bitget-helpers"
-	"github.com/asaskevich/govalidator"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
@@ -89,18 +88,7 @@ func getTradeData(api_key string, secret_key string, passphrase string) ([]Data,
 	return resp.Data, nil
 }
 
-func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request) {
-
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
+func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get keys by user id
 	key := models.Key{}
@@ -161,17 +149,7 @@ func (server *Server) GetOpenTrades(w http.ResponseWriter, r *http.Request) {
 	w.Write(json)
 }
 
-func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
+func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get keys by user id
 	key := models.Key{}
