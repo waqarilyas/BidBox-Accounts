@@ -18,27 +18,10 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
-type Order struct {
-	Symbol           string `json:"symbol"`
-	MarginCoin       string `json:"marginCoin"`
-	Size             string `json:"size"`
-	Side             string `json:"side"`
-	OrderType        string `json:"orderType"`
-	TimeInForceValue string `json:"timeInForceValue"`
-}
-
-type OrderResponse struct {
-	Code        string `json:"code"`
-	Msg         string `json:"msg"`
-	RequestTime int64  `json:"requestTime"`
-	Data        struct {
-		ClientOid string `json:"clientOid"`
-		OrderID   string `json:"orderId"`
-	} `json:"data"`
-}
-
 func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request, email string) {
-	var order Order
+	var order models.OrderRequest
+	var saveOrder models.Order
+
 	err := json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
@@ -82,16 +65,24 @@ func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request, email s
 		response.ERROR(w, http.StatusNoContent, errors.New("api key not found"))
 		return
 	}
-	var orderResp OrderResponse
+	var orderResp models.OrderResponse
 	str := NewOrder(api_key, secret_key, passphrase, &order)
 	err = json.Unmarshal([]byte(str), &orderResp)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	response := map[string]string{"client_id": orderResp.Data.ClientOid, "order_id": orderResp.Data.OrderID}
-	json_val, _ := json.Marshal(response)
+	res := map[string]string{"client_id": orderResp.Data.ClientOid, "order_id": orderResp.Data.OrderID}
+	json_val, _ := json.Marshal(res)
 
+	saveOrder.Initialize(order, email, orderResp.Data.ClientOid, orderResp.Data.OrderID)
+	err = saveOrder.Validate()
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	saveOrder.SaveOrder(server.DB)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json_val)
 }
@@ -113,7 +104,7 @@ func GenerateBitgetSignature(apiSecret string, apiKey string, passphrase string,
 	return signature
 }
 
-func NewOrder(api_key string, secret_key string, passphrase string, order *Order) string {
+func NewOrder(api_key string, secret_key string, passphrase string, order *models.OrderRequest) string {
 
 	host := "https://api.bitget.com"
 	path := "/api/mix/v1/order/placeOrder"
@@ -127,8 +118,6 @@ func NewOrder(api_key string, secret_key string, passphrase string, order *Order
 	server_time := helpers.GetBitgetServerTimeStamp()
 	signatures := GenerateBitgetSignature(secret_key, api_key, passphrase, "POST", path, server_time, string(jsonVal))
 
-	log.Println(server_time)
-	log.Println(signatures)
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonVal))
 	req.Header.Add("ACCESS-KEY", api_key)
 	req.Header.Add("ACCESS-SIGN", signatures)
