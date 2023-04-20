@@ -102,7 +102,11 @@ func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	w.Write([]byte(orderResp.Data.OrderID))
+  response := map[string]string{"client_id": orderResp.Data.ClientOid, "order_id": orderResp.Data.OrderID} 
+  json_val, _ := json.Marshal(response)
+
+  w.Header().Set("Content-Type", "application/json")
+  w.Write(json_val)
 }
 
 func GenerateBitgetSignature(apiSecret string, apiKey string, passphrase string, method string, uri string, timestamp string, requestBody string) string {
@@ -150,7 +154,7 @@ func NewOrder(api_key string, secret_key string, passphrase string, order *Order
 		log.Fatal(err)
 		return ""
 	}
-
+ 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
