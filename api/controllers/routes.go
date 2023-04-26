@@ -15,5 +15,4 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/active_trades", middleware.ValidateEmail(r.GetOpenTrades)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetClosedTrades)).Methods("GET")
 	s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
-
 }
