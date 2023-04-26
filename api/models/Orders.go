@@ -7,12 +7,11 @@ import (
 )
 
 type OrderRequest struct {
-	Symbol           string `json:"symbol"`
-	MarginCoin       string `json:"marginCoin"`
-	Size             string `json:"size"`
-	Side             string `json:"side"`
-	OrderType        string `json:"orderType"`
-	TimeInForceValue string `json:"timeInForceValue"`
+	Symbol     string `json:"symbol"`
+	MarginCoin string `json:"marginCoin"`
+	Size       string `json:"size"`
+	Side       string `json:"side"`
+	OrderType  string `json:"orderType"`
 }
 
 type OrderResponse struct {
@@ -47,30 +46,21 @@ func (o *Order) Initialize(order OrderRequest, email string, client_id string, o
 	o.Email = email
 }
 
-func (o *Order) Validate() error {
-	if o.Email == "" {
-		errors.New("email is required")
-	}
+func (o *OrderRequest) Validate() error {
 	if o.MarginCoin == "" {
-		errors.New("margin coin is required")
+		return errors.New("margin coin is required")
 	}
 	if o.OrderType == "" {
-		errors.New("ordertype is required")
+		return errors.New("ordertype is required")
 	}
 	if o.Side == "" {
-		errors.New("side is required")
+		return errors.New("side is required")
 	}
 	if o.Size == "" {
-		errors.New("size is required")
+		return errors.New("size is required")
 	}
 	if o.Symbol == "" {
-		errors.New("symbol is required")
-	}
-	if o.OrderID == "" {
-		errors.New("bitget error, could not get order ID")
-	}
-	if o.ClientID == "" {
-		errors.New("bitget error, could not get client ID")
+		return errors.New("symbol is required")
 	}
 	return nil
 }

@@ -66,7 +66,18 @@ func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request, email s
 		return
 	}
 	var orderResp models.OrderResponse
-	str := NewOrder(api_key, secret_key, passphrase, &order)
+	err = order.Validate()
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	str, err := NewOrder(api_key, secret_key, passphrase, &order)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	err = json.Unmarshal([]byte(str), &orderResp)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
@@ -76,11 +87,6 @@ func (server *Server) PlaceOrder(w http.ResponseWriter, r *http.Request, email s
 	json_val, _ := json.Marshal(res)
 
 	saveOrder.Initialize(order, email, orderResp.Data.ClientOid, orderResp.Data.OrderID)
-	err = saveOrder.Validate()
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
 
 	saveOrder.SaveOrder(server.DB)
 	w.Header().Set("Content-Type", "application/json")
@@ -104,7 +110,7 @@ func GenerateBitgetSignature(apiSecret string, apiKey string, passphrase string,
 	return signature
 }
 
-func NewOrder(api_key string, secret_key string, passphrase string, order *models.OrderRequest) string {
+func NewOrder(api_key string, secret_key string, passphrase string, order *models.OrderRequest) (string, error) {
 
 	host := "https://api.bitget.com"
 	path := "/api/mix/v1/order/placeOrder"
@@ -113,7 +119,11 @@ func NewOrder(api_key string, secret_key string, passphrase string, order *model
 	method := "POST"
 	client := &http.Client{}
 
-	jsonVal, _ := json.Marshal(order)
+	jsonVal, err := json.Marshal(order)
+	if err != nil {
+		log.Fatal(err)
+		return "", err
+	}
 
 	server_time := helpers.GetBitgetServerTimeStamp()
 	signatures := GenerateBitgetSignature(secret_key, api_key, passphrase, "POST", path, server_time, string(jsonVal))
@@ -128,20 +138,20 @@ func NewOrder(api_key string, secret_key string, passphrase string, order *model
 
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return "", err
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return "", err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
-		return ""
+		return "", err
 	}
-	return string(body)
+	return string(body), nil
 }
