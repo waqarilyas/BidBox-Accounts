@@ -15,7 +15,7 @@ type Server struct {
 	DB *gorm.DB
 }
 
-func (server *Server) UpdateUserBalanceByKeys(keyid uuid.UUID, apiSecret string, apiKey string, passphrase string) models.Accounts {
+func (server *Server) UpdateUserBalanceByKeys(keyid uuid.UUID, apiSecret string, apiKey string, passphrase string) *models.Accounts {
 	decrypted_api_key, err := DecryptStrings(apiKey)
 	if err != nil {
 		log.Fatal(err)

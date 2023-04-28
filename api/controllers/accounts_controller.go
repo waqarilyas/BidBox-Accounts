@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/kryptomind/bidboxapi/AccountsService/api/helpers"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
-	"github.com/kryptomind/bidboxapi/CronsService/helpers"
 )
 
 func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
