@@ -15,6 +15,8 @@ type User struct {
 	Confirmed bool      `gorm:"default:false" json:"confirmed"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	Strategy  string    `json:"strategy"`
+	Mode      string    `json:"mode"`
 }
 
 func (u *User) FindUserById(db *gorm.DB, uid uint32) (*User, error) {
@@ -35,6 +37,42 @@ func (u *User) FindUserByEmail(db *gorm.DB, email string) (*User, error) {
 	}
 	if gorm.IsRecordNotFoundError(err) {
 		return &User{}, errors.New("User not found")
+	}
+	return u, nil
+}
+
+func (u *User) ChangeStrategy(db *gorm.DB, strategy string) (*User, error) {
+	db = db.Debug().Model(&User{}).Where("email = ?", u.Email).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"strategy":   strategy,
+			"updated_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+	// This is the display the updated user
+	err := db.Debug().Model(&User{}).Where("email = ?", u.Email).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+func (u *User) ChangeMode(db *gorm.DB, mode string) (*User, error) {
+	db = db.Debug().Model(&User{}).Where("email = ?", u.Email).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"mode":       mode,
+			"updated_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+	// This is the display the updated user
+	err := db.Debug().Model(&User{}).Where("email = ?", u.Email).Take(&u).Error
+	if err != nil {
+		return &User{}, err
 	}
 	return u, nil
 }
