@@ -14,6 +14,12 @@ type OrderRequest struct {
 	OrderType  string `json:"orderType"`
 }
 
+type CancelOrderRequest struct {
+	Symbol     string `json:"symbol"`
+	MarginCoin string `json:"marginCoin"`
+	OrderId    string `json:"orderId"`
+}
+
 type OrderResponse struct {
 	Code        string `json:"code"`
 	Msg         string `json:"msg"`
