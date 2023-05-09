@@ -130,49 +130,116 @@ func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, exchanges)
 }
 
-func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
-	exchange := r.URL.Query().Get("exchange")
-	if exchange == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
-		return
-	}
+// func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
+// 	// exchange := r.URL.Query().Get("exchange")
+// 	// if exchange == "" {
+// 	// 	response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
+// 	// 	return
+// 	// }
 
+// 	userEmail := r.URL.Query().Get("email")
+// 	if userEmail == "" {
+// 		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
+// 		return
+// 	}
+
+// 	key := models.Key{}
+// 	apiKeys, err := key.FindKeysByUserEmail(server.DB, userEmail)
+// 	if err != nil {
+// 		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
+// 		return
+// 	}
+
+// for ind, v := range *apiKeys {
+// 		decrypted_api_key, err := helpers.DecryptStrings(v.ApiKey)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 			break
+// 		}
+// 		decrypted_passphrase, err := helpers.DecryptStrings(v.Passphrase)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 			break
+// 		}
+// 		decrypted_secret, err := helpers.DecryptStrings(v.SecretKey)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 			break
+// 		}
+// 	}
+
+// 	// decrypted_api_key, err := helpers.DecryptStrings(apiKeys.ApiKey)
+// 	// if err != nil {
+// 	// 	response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+// 	// 	return
+
+// 	// }
+// 	// decrypted_passphrase, err := helpers.DecryptStrings(apiKeys.Passphrase)
+// 	// if err != nil {
+// 	// 	response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+// 	// 	return
+
+// 	// }
+// 	// decrypted_secret, err := helpers.DecryptStrings(apiKeys.SecretKey)
+// 	// if err != nil {
+// 	// 	response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+// 	// 	return
+// 	// }
+
+// 	exchangeResponse := map[string]string{
+// 		"api_key":    decrypted_api_key,
+// 		"passphrase": decrypted_passphrase,
+// 		"secret":     decrypted_secret,
+// 	}
+
+// 	response.JSON(w, http.StatusOK, exchangeResponse)
+// }
+
+func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
 	userEmail := r.URL.Query().Get("email")
-	if exchange == "" {
+	if userEmail == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
 		return
 	}
 
 	key := models.Key{}
-	apiKeys, err := key.FindKeyByUserEmailAndShort(server.DB, userEmail, exchange)
+	apiKeys, err := key.FindKeysByUserEmail(server.DB, userEmail)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
 		return
 	}
 
-	decrypted_api_key, err := helpers.DecryptStrings(apiKeys.ApiKey)
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
-		return
-
-	}
-	decrypted_passphrase, err := helpers.DecryptStrings(apiKeys.Passphrase)
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
-		return
-
-	}
-	decrypted_secret, err := helpers.DecryptStrings(apiKeys.SecretKey)
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
-		return
+	type ExchangeKey struct {
+		Exchange   string `json:"exchange"`
+		ApiKey     string `json:"api_key"`
+		Passphrase string `json:"passphrase"`
+		Secret     string `json:"secret"`
 	}
 
-	exchangeResponse := map[string]string{
-		"api_key":    decrypted_api_key,
-		"passphrase": decrypted_passphrase,
-		"secret":     decrypted_secret,
+	var exchangeKeys []ExchangeKey
+	for _, v := range *apiKeys {
+		decryptedApiKey, err := helpers.DecryptStrings(v.ApiKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
+			return
+		}
+		decryptedPassphrase, err := helpers.DecryptStrings(v.Passphrase)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
+			return
+		}
+		decryptedSecret, err := helpers.DecryptStrings(v.SecretKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
+			return
+		}
+		exchangeKeys = append(exchangeKeys, ExchangeKey{
+			Exchange:   v.Service,
+			ApiKey:     decryptedApiKey,
+			Passphrase: decryptedPassphrase,
+			Secret:     decryptedSecret,
+		})
 	}
 
-	response.JSON(w, http.StatusOK, exchangeResponse)
+	response.JSON(w, http.StatusOK, exchangeKeys)
 }
