@@ -37,8 +37,12 @@ jobs:
       
       - name: Starting Docker Container
         run: |
-          docker run -d -p 8000:8080 --name bidbox-accounts-service bidbox-accounts:latest 
+          docker run -d -p 8000:8080 --restart unless-stopped --name bidbox-accounts-service bidbox-accounts:latest 
       
       - name: View Docker status
         run: |
           docker ps
+      
+      - name: Cleaning Server
+        run: |
+          docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
