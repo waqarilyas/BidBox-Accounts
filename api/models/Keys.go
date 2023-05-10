@@ -37,11 +37,11 @@ func (u *Key) FindKeyById(db *gorm.DB, kid uuid.UUID) (*Key, error) {
 	return u, nil
 }
 
-func (u *Key) FindKeysByEmail(db *gorm.DB, email string) (*[]Key, error) {
-	Keys := []Key{}
-	err := db.Debug().Model(Key{}).Where("user_email = ?", email).Find(&Keys).Error
+func (u *Key) FindKeysByEmail(db *gorm.DB, email string, service string) (*Key, error) {
+	Keys := Key{}
+	err := db.Debug().Model(Key{}).Where("user_email = ? AND service = ?", email, service).Find(&Keys).Error
 	if err != nil {
-		return &[]Key{}, err
+		return &Key{}, err
 	}
 	return &Keys, nil
 }
