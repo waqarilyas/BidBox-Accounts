@@ -29,10 +29,16 @@ jobs:
       - name: Building and Assigning Tag to image
         run: |
           docker build -t bidbox-accounts:latest .
-          
+      
+      - name: Removing old Container
+        run: |
+          docker stop bidbox-accounts-service
+          docker rm bidbox-accounts-service
+      
       - name: Starting Docker Container
         run: |
           docker run -d -p 8000:8080 --name bidbox-accounts-service bidbox-accounts:latest 
+      
       - name: View Docker status
         run: |
           docker ps
