@@ -32,7 +32,7 @@ jobs:
       
       - name: Removing old Container if exits
         run: |
-          docker stop bidbox-exchanges-service || true && docker rm bidbox-exchanges-service || true
+          docker stop bidbox-accounts-service || true && docker rm bidbox-accounts-service || true
       
       - name: Starting Docker Container
         run: |
