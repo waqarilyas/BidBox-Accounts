@@ -130,7 +130,7 @@ func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, exchanges)
 }
 
-func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
+func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, email string) {
 	userEmail := r.URL.Query().Get("email")
 	if userEmail == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
@@ -177,4 +177,51 @@ func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request
 	}
 
 	response.JSON(w, http.StatusOK, exchangeKeys)
+}
+
+func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
+	exchange := r.URL.Query().Get("exchange")
+	if exchange == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
+		return
+	}
+
+	userEmail := r.URL.Query().Get("email")
+	if exchange == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
+		return
+	}
+
+	key := models.Key{}
+	apiKeys, err := key.FindKeyByUserEmailAndShort(server.DB, userEmail, exchange)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
+		return
+	}
+
+	decrypted_api_key, err := helpers.DecryptStrings(apiKeys.ApiKey)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+
+	}
+	decrypted_passphrase, err := helpers.DecryptStrings(apiKeys.Passphrase)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+
+	}
+	decrypted_secret, err := helpers.DecryptStrings(apiKeys.SecretKey)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+	}
+
+	exchangeResponse := map[string]string{
+		"api_key":    decrypted_api_key,
+		"passphrase": decrypted_passphrase,
+		"secret":     decrypted_secret,
+	}
+
+	response.JSON(w, http.StatusOK, exchangeResponse)
 }
