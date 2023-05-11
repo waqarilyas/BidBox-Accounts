@@ -30,10 +30,9 @@ jobs:
         run: |
           docker build -t bidbox-accounts:latest .
       
-      - name: Removing old Container
+      - name: Removing old Container if exits
         run: |
-          docker stop bidbox-accounts-service
-          docker rm bidbox-accounts-service
+          docker stop bidbox-exchanges-service || true && docker rm bidbox-exchanges-service || true
       
       - name: Starting Docker Container
         run: |
