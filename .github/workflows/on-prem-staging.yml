@@ -44,4 +44,4 @@ jobs:
       
       - name: Cleaning Server
         run: |
-          docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+          echo y | docker image prune --filter "dangling=true"
