@@ -23,4 +23,8 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/strategy", middleware.ValidateEmail(r.UpdateStrategy)).Methods("POST")
 	s.HandleFunc("/modes", middleware.ValidateEmail(r.UpdateMode)).Methods("POST")
 
+	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.GetCoins)).Methods("GET")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.CreateCoin)).Methods("POST")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.UpdateCoin)).Methods("PUT")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.DeleteCoin)).Methods("DELETE")
 }
