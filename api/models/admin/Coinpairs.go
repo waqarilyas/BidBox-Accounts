@@ -27,17 +27,13 @@ func (cp *CoinPair) SaveCoinPair(db *gorm.DB) (*CoinPair, error) {
 func (cp *CoinPair) UpdateCoinPair(db *gorm.DB, coin string) (*CoinPair, error) {
 	db = db.Debug().Model(&CoinPair{}).Where("coin = ?", coin).Take(&CoinPair{}).UpdateColumns(
 		map[string]interface{}{
-			"coin": coin,
+			"coin": cp.Coin,
 		},
 	)
 	if db.Error != nil {
 		return &CoinPair{}, db.Error
 	}
-	// This is the display the updated user
-	err := db.Debug().Model(&CoinPair{}).Where("coin = ?", coin).Take(&cp).Error
-	if err != nil {
-		return &CoinPair{}, err
-	}
+	cp.Coin = coin
 	return cp, nil
 }
 

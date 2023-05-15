@@ -56,3 +56,46 @@ func TestGetCoins(t *testing.T) {
 		log.Println(v.Coin)
 	}
 }
+
+func TestSaveCoins(t *testing.T) {
+
+	db := initDB()
+	coinpairs := CoinPair{
+		Coin: "TEST",
+	}
+
+	c, err := coinpairs.SaveCoinPair(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	log.Println(c)
+}
+
+func TestUpdateCoins(t *testing.T) {
+
+	db := initDB()
+	coinpairs := CoinPair{
+		Coin: "NEW",
+	}
+
+	c, err := coinpairs.UpdateCoinPair(db, "TEST")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	log.Println(c)
+}
+
+func TestDeleteCoins(t *testing.T) {
+
+	db := initDB()
+	coinpairs := CoinPair{}
+
+	c, err := coinpairs.DeleteCoinPair(db, "NEW")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	log.Println(c)
+}
