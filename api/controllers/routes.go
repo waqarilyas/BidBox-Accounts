@@ -1,9 +1,10 @@
 package controllers
 
-import "github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
+import (
+	"github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
+)
 
 func (r *Server) initializeRoutes() {
-
 	s := r.Router.PathPrefix("/accounts").Subrouter()
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
