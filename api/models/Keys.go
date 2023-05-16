@@ -9,12 +9,14 @@ import (
 
 type Key struct {
 	Keyid      uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
-	Uid        string    `gorm:"size:255" json:"uid"`
 	Service    string    `gorm:"size:255;not null" json:"service"`
 	ApiKey     string    `gorm:"not null;unique" json:"api_key"`
 	SecretKey  string    `gorm:"not null;unique" json:"secret_key"`
 	Passphrase string    `gorm:"" json:"passphrase"`
 	UserEmail  string    `json:"user_email"`
+	Strategy   string    `json:"strategy"`
+	Mode       string    `json:"mode"`
+	Compound   bool      `json:"compound"`
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {
@@ -88,4 +90,40 @@ func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service stri
 		return &Key{}, errors.New("no connected keys found")
 	}
 	return &Keys, nil
+}
+
+func (k *Key) Validate(prev *Key) {
+	if k.Strategy == "" {
+		k.Strategy = prev.Strategy
+	}
+	if k.Mode == "" {
+		k.Mode = prev.Mode
+	}
+	if k.Compound == prev.Compound {
+		k.Compound = prev.Compound
+	}
+}
+
+func (k *Key) UpdateKeySettings(db *gorm.DB, email string, service string) (*Key, error) {
+	updated_key := Key{}
+	db = db.Debug().Model(&Key{}).Where("user_email = ? AND service = ?", email, service).Take(&updated_key).
+		UpdateColumns(
+			map[string]interface{}{
+				"strategy": k.Strategy,
+				"mode":     k.Mode,
+				"compound": k.Compound,
+			},
+		)
+	if db.Error != nil {
+		return &Key{}, db.Error
+	}
+	return &updated_key, nil
+}
+
+func (k *Key) DeleteKey(db *gorm.DB, email string, service string) (int64, error) {
+	db = db.Debug().Model(&Key{}).Where("user_email = ? AND service = ?", email, service).Take(&Key{}).Delete(&Key{})
+	if db.Error != nil {
+		return 0, db.Error
+	}
+	return db.RowsAffected, nil
 }

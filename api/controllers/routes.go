@@ -13,6 +13,8 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/connected", middleware.ValidateEmail(r.GetUserConnectedAccounts)).Methods("GET")
 	s.HandleFunc("/exchange-keys", middleware.ValidateEmail(r.GetUserExchangeKeys)).Methods("GET")
 	s.HandleFunc("/all-keys", middleware.ValidateEmail(r.GetUserAllKeys)).Methods("GET")
+	s.HandleFunc("/disconnect", middleware.ValidateEmail(r.DisconnectKey)).Methods("DELETE")
+	s.HandleFunc("/key/settings", middleware.ValidateEmail(r.UpdateKeySettings)).Methods("PUT")
 
 	//trades
 	s.HandleFunc("/active_trades", middleware.ValidateEmail(r.GetOpenTrades)).Methods("GET")
