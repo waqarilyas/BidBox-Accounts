@@ -33,4 +33,6 @@ func (r *Server) initializeRoutes() {
 	//settings
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.GetConditions)).Methods("GET")
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.UpdateConditions)).Methods("PUT")
+	s.HandleFunc("/admin/conditions/total", middleware.MiddlewareJSON(r.GetCountConditions)).Methods("GET")
+
 }

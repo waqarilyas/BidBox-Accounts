@@ -90,5 +90,5 @@ func (server *Server) DeleteCoin(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	response.JSON(w, http.StatusNoContent, "deleted row")
+	response.JSON(w, http.StatusOK, "deleted row")
 }

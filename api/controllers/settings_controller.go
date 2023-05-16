@@ -36,6 +36,23 @@ func (server *Server) GetConditions(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, conds)
 }
 
+func (server *Server) GetCountConditions(w http.ResponseWriter, r *http.Request) {
+
+	cond := admin.Conditions{}
+
+	conds, err := cond.TotalConditions(server.DB)
+
+	result := make(map[string]int64)
+
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	result["total"] = conds
+
+	response.JSON(w, http.StatusOK, result)
+}
+
 func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 
 	capital, err := strconv.Atoi(r.URL.Query().Get("capital"))
