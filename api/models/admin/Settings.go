@@ -31,7 +31,7 @@ func (c *Conditions) Validate(prev *Conditions) {
 
 func (c *Conditions) GetConditions(db *gorm.DB, limit int, offset int) (*[]Conditions, error) {
 	Condition := []Conditions{}
-	err := db.Debug().Model(&Conditions{}).Limit(limit).Offset(offset).Find(&Condition).Error
+	err := db.Debug().Model(&Conditions{}).Order("capital").Limit(limit).Offset(offset).Find(&Condition).Error
 	if err != nil {
 		return &[]Conditions{}, err
 	}
