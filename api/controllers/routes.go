@@ -35,6 +35,11 @@ func (r *Server) initializeRoutes() {
 	//settings
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.GetConditions)).Methods("GET")
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.UpdateConditions)).Methods("PUT")
-	s.HandleFunc("/admin/conditions/total", middleware.MiddlewareJSON(r.GetCountConditions)).Methods("GET")
+
+	s.HandleFunc("/register", middleware.MiddlewareJSON(r.SignUpUser)).Methods("POST")
+	s.HandleFunc("/login", middleware.MiddlewareJSON(r.LoginUser)).Methods("POST")
+	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
+	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
+	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
 
 }

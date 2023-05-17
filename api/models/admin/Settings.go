@@ -41,15 +41,6 @@ func (c *Conditions) GetConditions(db *gorm.DB, limit int, offset int) (*[]Condi
 	return &Condition, count, nil
 }
 
-func (c *Conditions) TotalConditions(db *gorm.DB) (int64, error) {
-	var count int64
-	result := db.Find(&Conditions{}).Count(&count)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return count, nil
-}
-
 func (c *Conditions) FindConditionById(db *gorm.DB, capital int) (*Conditions, error) {
 	cond := &Conditions{}
 	err := db.Debug().Model(Conditions{}).Where("capital = ?", capital).Take(&cond).Error
