@@ -29,13 +29,16 @@ func (c *Conditions) Validate(prev *Conditions) {
 	}
 }
 
-func (c *Conditions) GetConditions(db *gorm.DB, limit int, offset int) (*[]Conditions, error) {
+func (c *Conditions) GetConditions(db *gorm.DB, limit int, offset int) (*[]Conditions, int, error) {
 	Condition := []Conditions{}
 	err := db.Debug().Model(&Conditions{}).Order("capital").Limit(limit).Offset(offset).Find(&Condition).Error
 	if err != nil {
-		return &[]Conditions{}, err
+		return &[]Conditions{}, 0, err
 	}
-	return &Condition, nil
+	var count int
+	db.Model(&Conditions{}).Count(&count)
+
+	return &Condition, count, nil
 }
 
 func (c *Conditions) TotalConditions(db *gorm.DB) (int64, error) {

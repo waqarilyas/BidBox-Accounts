@@ -28,12 +28,17 @@ func (server *Server) GetConditions(w http.ResponseWriter, r *http.Request) {
 
 	cond := admin.Conditions{}
 
-	conds, err := cond.GetConditions(server.DB, limit, offset)
+	conds, count, err := cond.GetConditions(server.DB, limit, offset)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	response.JSON(w, http.StatusOK, conds)
+	resp := make(map[string]interface{})
+
+	resp["total"] = count
+	resp["conditions"] = conds
+
+	response.JSON(w, http.StatusOK, resp)
 }
 
 func (server *Server) GetCountConditions(w http.ResponseWriter, r *http.Request) {
