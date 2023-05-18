@@ -11,8 +11,8 @@ type Admin struct {
 
 	OtpVerified bool `gorm:"default:false;"`
 
-	Otp_secret   string `gorm:"-"`
-	Otp_auth_url string `gorm:"-"`
+	OtpSecret string
+	OtpUrl    string
 }
 
 type RegisterUserInput struct {
@@ -27,6 +27,6 @@ type LoginUserInput struct {
 }
 
 type OTPInput struct {
-	UserId string `json:"user_id"`
+	UserId string `json:"id"`
 	Token  string `json:"token"`
 }

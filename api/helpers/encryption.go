@@ -3,10 +3,34 @@ package helpers
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"io"
 	"os"
 )
+
+func EncryptStrings(plaintext string) (string, error) {
+	keyString := os.Getenv("ENCRYPTION_PASS")
+	key := []byte(keyString)
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, 12)
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext := aesgcm.Seal(nil, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(append(nonce, ciphertext...)), nil
+}
 
 func DecryptStrings(encodedCiphertext string) (string, error) {
 	keyString := os.Getenv("ENCRYPTION_PASS")
