@@ -9,8 +9,8 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/go-playground/validator/v10"
+	"github.com/kryptomind/bidboxapi/AccountsService/api/auth"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
-	// "github.com/kryptomind/bidboxapi/auth/api/auth"
 )
 
 type emailNext func(http.ResponseWriter, *http.Request, string)
@@ -20,17 +20,6 @@ var validate = validator.New()
 func MiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r.Header.Set("Content-Type", "application/json")
-		next(w, r)
-	}
-}
-
-func MiddlewareAuth(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// err := auth.TokenValid(r)
-		// if err != nil {
-		// 	response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
-		// 	return
-		// }
 		next(w, r)
 	}
 }
@@ -88,5 +77,16 @@ func ValidateBody(next http.HandlerFunc, v interface{}) http.HandlerFunc {
 
 		next(w, r)
 		// next.ServeHTTP(w, r)
+	}
+}
+
+func MiddlewareAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := auth.TokenValid(r)
+		if err != nil {
+			response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+			return
+		}
+		next(w, r)
 	}
 }

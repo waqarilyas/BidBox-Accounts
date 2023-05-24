@@ -40,8 +40,19 @@ func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 
 func (server *Server) GetCoins(w http.ResponseWriter, r *http.Request) {
 
+	//	uid := r.URL.Query().Get("id")
+
 	coin := admin.CoinPair{}
 
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+	// 	return
+	// }
+	// if tokenID != uid {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
+	// 	return
+	// }
 	coins, err := coin.GetAllCoins(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/kryptomind/bidboxapi/AccountsService/api/auth"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/helpers"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models/admin"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
@@ -144,10 +145,17 @@ func (s *Server) VerifyOTP(w http.ResponseWriter, r *http.Request) {
 
 	s.DB.Model(&user).Updates(dataToUpdate)
 
+	token, err := auth.CreateToken(payload.UserId)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	userResponse := make(map[string]interface{})
 	userResponse["id"] = user.Id.String()
 	userResponse["email"] = user.Email
 	userResponse["otp_verified"] = user.OtpVerified
+	userResponse["token"] = token
 	response.JSON(w, http.StatusOK, userResponse)
 }
 
