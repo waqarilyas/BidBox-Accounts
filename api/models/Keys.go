@@ -92,7 +92,10 @@ func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service stri
 	return &Keys, nil
 }
 
-func (k *Key) Validate(prev *Key) {
+var strategy = []string{"Cycle", "Single", "Stop Make", "Stop Long", "Stop Short"}
+var modes = []string{"conservative", "aggressive"}
+
+func (k *Key) Validate(prev *Key) error {
 	if k.Strategy == "" {
 		k.Strategy = prev.Strategy
 	}
@@ -102,6 +105,17 @@ func (k *Key) Validate(prev *Key) {
 	if k.Compound == prev.Compound {
 		k.Compound = prev.Compound
 	}
+	for _, v := range modes {
+		if v == k.Mode {
+			return nil
+		}
+	}
+	for _, v := range strategy {
+		if v == k.Strategy {
+			return nil
+		}
+	}
+	return errors.New("strategy or mode is incorrect")
 }
 
 func (k *Key) UpdateKeySettings(db *gorm.DB, email string, service string) (*Key, error) {
@@ -118,6 +132,15 @@ func (k *Key) UpdateKeySettings(db *gorm.DB, email string, service string) (*Key
 		return &Key{}, db.Error
 	}
 	return &updated_key, nil
+}
+
+func (k *Key) GetSettings(db *gorm.DB, email string) (*[]Key, error) {
+	keys := []Key{}
+	err := db.Debug().Model(&Key{}).Where("user_email = ?", email).Find(&keys).Error
+	if err != nil {
+		return &[]Key{}, err
+	}
+	return &keys, nil
 }
 
 func (k *Key) DeleteKey(db *gorm.DB, email string, service string) (int64, error) {
