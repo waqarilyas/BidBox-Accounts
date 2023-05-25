@@ -92,10 +92,12 @@ func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service stri
 	return &Keys, nil
 }
 
-var strategy = []string{"Cycle", "Single", "Stop Make", "Stop Long", "Stop Short"}
+var strategy = []string{"cycle", "single", "stop make", "stop long", "stop short"}
 var modes = []string{"conservative", "aggressive"}
 
 func (k *Key) Validate(prev *Key) error {
+	st := false
+	md := false
 	if k.Strategy == "" {
 		k.Strategy = prev.Strategy
 	}
@@ -107,13 +109,18 @@ func (k *Key) Validate(prev *Key) error {
 	}
 	for _, v := range modes {
 		if v == k.Mode {
-			return nil
+			md = true
+			break
 		}
 	}
 	for _, v := range strategy {
 		if v == k.Strategy {
-			return nil
+			st = true
+			break
 		}
+	}
+	if st && md {
+		return nil
 	}
 	return errors.New("strategy or mode is incorrect")
 }
