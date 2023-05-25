@@ -94,7 +94,7 @@ func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service stri
 	return &Keys, nil
 }
 
-var strategy = []string{"cycle", "single", "stop make", "stop long", "stop short"}
+var strategy = []string{"cycle", "single", "stop_make", "stop_long", "stop_short"}
 var modes = []string{"conservative", "aggressive"}
 
 func (k *Key) Validate(prev *Key) error {
