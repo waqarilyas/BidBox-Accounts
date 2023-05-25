@@ -144,55 +144,40 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 		return
 	}
 
-	type ExchangeKey struct {
-		Exchange   string `json:"exchange"`
-		ApiKey     string `json:"api_key"`
-		Passphrase string `json:"passphrase"`
-		Secret     string `json:"secret"`
-	}
-
-	var exchangeKeys []ExchangeKey
 	for _, v := range *apiKeys {
-		var decryptedApiKey, decryptedPassphrase, decryptedSecret string
 		if v.Service == "bitget" {
-			decryptedApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			v.ApiKey, err = helpers.DecryptStrings(v.ApiKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
 				return
 			}
-			decryptedPassphrase, err = helpers.DecryptStrings(v.Passphrase)
+			v.Passphrase, err = helpers.DecryptStrings(v.Passphrase)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
 				return
 			}
-			decryptedSecret, err = helpers.DecryptStrings(v.SecretKey)
+			v.SecretKey, err = helpers.DecryptStrings(v.SecretKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
 				return
 			}
 		} else if v.Service == "binance" {
-			decryptedApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			v.ApiKey, err = helpers.DecryptStrings(v.ApiKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
 				return
 			}
-			decryptedPassphrase = ""
-			decryptedSecret, err = helpers.DecryptStrings(v.SecretKey)
+			v.Passphrase = ""
+			v.SecretKey, err = helpers.DecryptStrings(v.SecretKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
 				return
 			}
 		}
 
-		exchangeKeys = append(exchangeKeys, ExchangeKey{
-			Exchange:   v.Service,
-			ApiKey:     decryptedApiKey,
-			Passphrase: decryptedPassphrase,
-			Secret:     decryptedSecret,
-		})
 	}
 
-	response.JSON(w, http.StatusOK, exchangeKeys)
+	response.JSON(w, http.StatusOK, apiKeys)
 }
 
 func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {

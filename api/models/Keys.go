@@ -8,15 +8,17 @@ import (
 )
 
 type Key struct {
-	Keyid      uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
-	Service    string    `gorm:"size:255;not null" json:"service"`
-	ApiKey     string    `gorm:"not null;unique" json:"api_key"`
-	SecretKey  string    `gorm:"not null;unique" json:"secret_key"`
-	Passphrase string    `gorm:"" json:"passphrase"`
-	UserEmail  string    `json:"user_email"`
-	Strategy   string    `json:"strategy"`
-	Mode       string    `json:"mode"`
-	Compound   bool      `json:"compound"`
+	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
+	Service     string    `gorm:"size:255;not null" json:"service"`
+	ApiKey      string    `gorm:"not null;unique" json:"api_key"`
+	SecretKey   string    `gorm:"not null;unique" json:"secret_key"`
+	Passphrase  string    `gorm:"" json:"passphrase"`
+	UserEmail   string    `json:"user_email"`
+	Strategy    string    `json:"strategy"`
+	Mode        string    `json:"mode"`
+	Compound    bool      `json:"compound"`
+	TradeAmount int       "json:`trade_amount`"
+	Start       bool      "json:`start`"
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {
@@ -107,6 +109,9 @@ func (k *Key) Validate(prev *Key) error {
 	if k.Compound == prev.Compound {
 		k.Compound = prev.Compound
 	}
+	if k.Start == prev.Start {
+		k.Start = prev.Start
+	}
 	for _, v := range modes {
 		if v == k.Mode {
 			md = true
@@ -133,6 +138,7 @@ func (k *Key) UpdateKeySettings(db *gorm.DB, email string, service string) (*Key
 				"strategy": k.Strategy,
 				"mode":     k.Mode,
 				"compound": k.Compound,
+				"start":    k.Start,
 			},
 		)
 	if db.Error != nil {
