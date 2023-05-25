@@ -140,7 +140,7 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 	key := models.Key{}
 	apiKeys, err := key.FindKeysByUserEmail(server.DB, userEmail)
 	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
+		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -153,21 +153,37 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 
 	var exchangeKeys []ExchangeKey
 	for _, v := range *apiKeys {
-		decryptedApiKey, err := helpers.DecryptStrings(v.ApiKey)
-		if err != nil {
-			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
-			return
+		var decryptedApiKey, decryptedPassphrase, decryptedSecret string
+		if v.Service == "bitget" {
+			decryptedApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
+				return
+			}
+			decryptedPassphrase, err = helpers.DecryptStrings(v.Passphrase)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
+				return
+			}
+			decryptedSecret, err = helpers.DecryptStrings(v.SecretKey)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
+				return
+			}
+		} else if v.Service == "binance" {
+			decryptedApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
+				return
+			}
+			decryptedPassphrase = ""
+			decryptedSecret, err = helpers.DecryptStrings(v.SecretKey)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
+				return
+			}
 		}
-		decryptedPassphrase, err := helpers.DecryptStrings(v.Passphrase)
-		if err != nil {
-			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
-			return
-		}
-		decryptedSecret, err := helpers.DecryptStrings(v.SecretKey)
-		if err != nil {
-			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
-			return
-		}
+
 		exchangeKeys = append(exchangeKeys, ExchangeKey{
 			Exchange:   v.Service,
 			ApiKey:     decryptedApiKey,
