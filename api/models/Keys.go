@@ -11,14 +11,14 @@ type Key struct {
 	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
 	Service     string    `gorm:"size:255;not null" json:"service"`
 	ApiKey      string    `gorm:"not null;unique" json:"api_key"`
-	SecretKey   string    `gorm:"not null;unique" json:"secret_key"`
+	SecretKey   string    `gorm:"not null;unique" json:"secret"`
 	Passphrase  string    `gorm:"" json:"passphrase"`
 	UserEmail   string    `json:"user_email"`
 	Strategy    string    `json:"strategy"`
 	Mode        string    `json:"mode"`
 	Compound    bool      `json:"compound"`
-	TradeAmount int       "json:`trade_amount`"
-	Start       bool      "json:`start`"
+	TradeAmount int       `json: "trade_amount"`
+	Start       bool      `json: "start"`
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {

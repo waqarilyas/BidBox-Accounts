@@ -144,31 +144,33 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 		return
 	}
 
-	for _, v := range *apiKeys {
+	keys := *apiKeys
+
+	for i, v := range *apiKeys {
 		if v.Service == "bitget" {
-			v.ApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
 				return
 			}
-			v.Passphrase, err = helpers.DecryptStrings(v.Passphrase)
+			keys[i].Passphrase, err = helpers.DecryptStrings(v.Passphrase)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
 				return
 			}
-			v.SecretKey, err = helpers.DecryptStrings(v.SecretKey)
+			keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
 				return
 			}
 		} else if v.Service == "binance" {
-			v.ApiKey, err = helpers.DecryptStrings(v.ApiKey)
+			keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
 				return
 			}
-			v.Passphrase = ""
-			v.SecretKey, err = helpers.DecryptStrings(v.SecretKey)
+			keys[i].Passphrase = ""
+			keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
 				return
@@ -177,7 +179,7 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 
 	}
 
-	response.JSON(w, http.StatusOK, apiKeys)
+	response.JSON(w, http.StatusOK, keys)
 }
 
 func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
