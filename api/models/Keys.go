@@ -17,8 +17,8 @@ type Key struct {
 	Strategy    string    `json:"strategy"`
 	Mode        string    `json:"mode"`
 	Compound    bool      `json:"compound"`
-	TradeAmount int       `json: "trade_amount"`
-	Start       bool      `json: "start"`
+	TradeAmount int       `json:"trade_amount"`
+	Start       bool      `json:"start"`
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {
