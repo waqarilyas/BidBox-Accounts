@@ -147,34 +147,24 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 	keys := *apiKeys
 
 	for i, v := range *apiKeys {
-		if v.Service == "bitget" {
-			keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
-			if err != nil {
-				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
-				return
-			}
+
+		keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
+			return
+		}
+
+		if v.Passphrase != "" {
 			keys[i].Passphrase, err = helpers.DecryptStrings(v.Passphrase)
 			if err != nil {
 				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
 				return
 			}
-			keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
-			if err != nil {
-				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
-				return
-			}
-		} else if v.Service == "binance" {
-			keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
-			if err != nil {
-				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
-				return
-			}
-			keys[i].Passphrase = ""
-			keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
-			if err != nil {
-				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
-				return
-			}
+		}
+		keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
+			return
 		}
 
 	}
