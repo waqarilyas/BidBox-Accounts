@@ -28,6 +28,20 @@ func (server *Server) GetSettings(w http.ResponseWriter, r *http.Request, email 
 	response.JSON(w, http.StatusOK, res)
 }
 
+func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
+
+	key := models.Key{}
+	c, err := key.FindNoOfUsers(server.DB)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	res := make(map[string]interface{})
+	res["users"] = c
+	response.JSON(w, http.StatusOK, res)
+}
+
 func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 

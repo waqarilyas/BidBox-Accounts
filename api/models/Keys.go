@@ -41,6 +41,19 @@ func (u *Key) FindKeyById(db *gorm.DB, kid uuid.UUID) (*Key, error) {
 	return u, nil
 }
 
+func (u *Key) FindNoOfUsers(db *gorm.DB) (int, error) {
+	var count int
+
+	query := db.Model(Key{}).
+		Group("user_email").
+		Count(&count)
+	if query.Error != nil {
+		return 0, query.Error
+	}
+
+	return count, nil
+}
+
 func (u *Key) FindKeysByEmail(db *gorm.DB, email string, service string) (*Key, error) {
 	Keys := Key{}
 	err := db.Debug().Model(Key{}).Where("user_email = ? AND service = ?", email, service).Find(&Keys).Error
