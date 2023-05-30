@@ -19,9 +19,11 @@ func (r *Server) initializeRoutes() {
 
 	//trades
 	s.HandleFunc("/active_trades", middleware.ValidateEmail(r.GetOpenTrades)).Methods("GET")
-	s.HandleFunc("/history", middleware.ValidateEmail(r.GetClosedTrades)).Methods("GET")
+	s.HandleFunc("/bitget_history", middleware.ValidateEmail(r.GetClosedTrades)).Methods("GET")
 	// s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
 	// s.HandleFunc("/cancel_order", middleware.ValidateEmail(r.DeleteOrder)).Methods("POST")
+
+	s.HandleFunc("/history", middleware.ValidateEmail(r.GetHistory)).Methods("GET")
 
 	//coins
 	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.GetCoins)).Methods("GET")

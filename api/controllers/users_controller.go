@@ -28,6 +28,24 @@ func (server *Server) GetSettings(w http.ResponseWriter, r *http.Request, email 
 	response.JSON(w, http.StatusOK, res)
 }
 
+func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service is required"))
+		return
+	}
+
+	hist := models.History{}
+	history, err := hist.GetHistory(server.DB, email, service)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, history)
+}
+
 func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
