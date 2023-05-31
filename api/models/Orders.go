@@ -79,6 +79,17 @@ func (o *Order) SaveOrder(db *gorm.DB) (*Order, error) {
 	return o, nil
 }
 
+func (o *Order) GetActiveTrades(db *gorm.DB) (int, error) {
+	var count int
+
+	err := db.Model(Order{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (o *Order) GetOrderThisMonth(db *gorm.DB) (*[]Order, error) {
 	orders := []Order{}
 

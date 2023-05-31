@@ -25,3 +25,15 @@ func (h *History) GetHistory(db *gorm.DB, email string, service string) (*[]Hist
 	return &hist, nil
 
 }
+
+func (h *History) GetSuccessfulTrades(db *gorm.DB) (int, error) {
+
+	var count int
+	err := db.Debug().Model(&History{}).Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+
+}

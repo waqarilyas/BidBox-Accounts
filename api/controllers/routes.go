@@ -31,7 +31,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.CreateCoin)).Methods("POST")
 	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.UpdateCoin)).Methods("PUT")
 	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.DeleteCoin)).Methods("DELETE")
-	s.HandleFunc("/admin/users", middleware.MiddlewareJSON(r.GetNoOfUsers)).Methods("GET")
+	s.HandleFunc("/admin/stats", middleware.MiddlewareJSON(r.GetNoOfUsers)).Methods("GET")
 
 	//settings
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.GetConditions)).Methods("GET")

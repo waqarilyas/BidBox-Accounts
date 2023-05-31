@@ -37,8 +37,25 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	order := models.Order{}
+	c1, err := order.GetActiveTrades(server.DB)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	hist := models.History{}
+	c2, err := hist.GetSuccessfulTrades(server.DB)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	res := make(map[string]interface{})
 	res["users"] = c
+	res["active_trades"] = c1
+	res["successful"] = c2
+	res["transactions"] = c1 + c2
 	response.JSON(w, http.StatusOK, res)
 }
 
