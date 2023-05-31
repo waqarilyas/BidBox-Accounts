@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models/admin"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
@@ -75,4 +76,38 @@ func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.JSON(w, http.StatusOK, updatedcond)
+}
+
+func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
+	time := r.URL.Query().Get("time")
+	var ords []models.Order
+	if time == "month" {
+		order := models.Order{}
+		orders, err := order.GetOrderThisMonth(server.DB)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+		ords = *orders
+	} else if time == "day" {
+		order := models.Order{}
+		orders, err := order.GetOrderThisDay(server.DB)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+		ords = *orders
+	} else if time == "alltime" || time == "" {
+		order := models.Order{}
+		orders, err := order.GetOrderAllTime(server.DB)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+		ords = *orders
+	} else {
+		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe param is incorrect"))
+		return
+	}
+	response.JSON(w, http.StatusOK, ords)
 }

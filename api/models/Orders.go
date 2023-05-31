@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -34,16 +35,15 @@ type Order struct {
 	Email      string
 	Symbol     string
 	MarginCoin string
+	Service    string
 	Size       string
 	Side       string
 	OrderType  string
-	ClientID   string
-	OrderID    string
+	CreatedAt  time.Time
+	Profit     float64
 }
 
 func (o *Order) Initialize(order OrderRequest, email string, client_id string, order_id string) {
-	o.ClientID = client_id
-	o.OrderID = order_id
 	o.MarginCoin = order.MarginCoin
 	o.Side = order.Side
 	o.Symbol = order.Symbol
@@ -77,4 +77,44 @@ func (o *Order) SaveOrder(db *gorm.DB) (*Order, error) {
 		return &Order{}, err
 	}
 	return o, nil
+}
+
+func (o *Order) GetOrderThisMonth(db *gorm.DB) (*[]Order, error) {
+	orders := []Order{}
+
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	err := db.Model(Order{}).Order("profit DESC").Where("created_at >= ?", startOfMonth).Find(&orders).Error
+	if err != nil {
+		return &[]Order{}, err
+	}
+
+	return &orders, nil
+}
+
+func (o *Order) GetOrderThisDay(db *gorm.DB) (*[]Order, error) {
+	ords := []Order{}
+
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	err := db.Model(Order{}).Order("profit DESC").Where("created_at >= ? AND created_at <= ?", startOfDay, endOfDay).Find(&ords).Error
+	if err != nil {
+		return &[]Order{}, err
+	}
+
+	return &ords, nil
+}
+
+func (o *Order) GetOrderAllTime(db *gorm.DB) (*[]Order, error) {
+	ords := []Order{}
+
+	err := db.Model(Order{}).Order("profit DESC").Find(&ords).Error
+	if err != nil {
+		return &[]Order{}, err
+	}
+
+	return &ords, nil
 }
