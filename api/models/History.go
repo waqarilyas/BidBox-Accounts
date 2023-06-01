@@ -14,6 +14,9 @@ type History struct {
 	Service     string    `json:"service"`
 	MarginMode  string    `json:"margin_mod"`
 	MarketPrice string    `json:"market_price"`
+	Size        string    `json:"size"`
+	Profit      float64   `json:"profit"`
+	QuoteAmount float64   `json:"quote_amount"`
 }
 
 func (h *History) GetHistory(db *gorm.DB, email string, service string) (*[]History, error) {
