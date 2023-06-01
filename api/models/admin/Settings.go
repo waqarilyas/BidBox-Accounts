@@ -6,6 +6,11 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Settings struct {
+	Timeframe    string `json:"timeframe"`
+	Maintainence bool   `json:"maintainence"`
+}
+
 type Conditions struct {
 	Capital    int `json:"capital"`
 	Positions  int `json:"positions"`
@@ -67,4 +72,18 @@ func (c *Conditions) UpdateConditions(db *gorm.DB, capital int) (*Conditions, er
 		return &Conditions{}, db.Error
 	}
 	return c, nil
+}
+
+func (s *Settings) UpdateMaintainance(db *gorm.DB, val bool) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"maintainance": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
+
 }

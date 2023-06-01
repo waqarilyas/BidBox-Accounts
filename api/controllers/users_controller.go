@@ -74,6 +74,12 @@ func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email s
 		return
 	}
 
+	if len(*history) == 0 {
+		res := make(map[string]string)
+		res["msg"] = "record not found"
+		response.JSON(w, http.StatusOK, res)
+		return
+	}
 	response.JSON(w, http.StatusOK, history)
 }
 
