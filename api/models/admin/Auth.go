@@ -13,7 +13,7 @@ type Admin struct {
 
 	OtpSecret string
 	OtpUrl    string
-	OtpEnabled bool
+	OtpEnabled string
 }
 
 type RegisterUserInput struct {
@@ -34,8 +34,7 @@ type OTPInput struct {
 }
 
 type OTPResponse struct {
-	UserId string `json:"UserId"`
-	OPTEnabled bool
+	OPTEnabled string `json:"opt_enabled"`
 }
 
 type ChangePasswordInput struct {

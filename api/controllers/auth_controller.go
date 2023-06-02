@@ -196,6 +196,7 @@ func (s *Server) ValidateOTP(w http.ResponseWriter, r *http.Request) {
 }
 
 
+
 func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPResponse
 
@@ -203,30 +204,33 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusBadRequest, err)
 		return
 	}
-	enable := payload.OPTEnabled
+	r.Header.Set("Content-Type", "application/json")
+	// Get the Authorization header from the request
+	authHeader := r.Header.Get("jwt_token")
 
+	// Check if the Authorization header is present
+	if authHeader == "" {
+		// Authorization header is missing
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Missing Authorization header")
+		return
+	}
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	userID, _ := auth.ExtractID(token)
 	var user admin.Admin
-	result := s.DB.First(&user, "id = ?", payload.UserId)
+	result := s.DB.First(&user, "id = ?", strings.ToLower(userID))
 	if result.Error != nil {
 		response.JSON(w, http.StatusBadRequest, "Invalid User ID")
 		return
 	}
-
+	enable := payload.OPTEnabled
 	dataToUpdate := admin.Admin{
 		OtpEnabled: enable,
 	}
-
 	s.DB.Model(&user).Updates(dataToUpdate)
 
 
-	if result.Error != nil && strings.Contains(result.Error.Error(), "duplicate key value violates unique") {
-		response.JSON(w, http.StatusConflict, "email already exist, please use another email address")
-		return
-	} else if result.Error != nil {
-		response.JSON(w, http.StatusBadGateway, result.Error)
-		return
-	}
-	response.JSON(w, http.StatusOK, "OTP enabled successfully")
+	response.JSON(w, http.StatusOK, "OTP Updated Successfully")
 
 }
 	
