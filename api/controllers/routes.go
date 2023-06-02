@@ -16,6 +16,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/disconnect", middleware.ValidateEmail(r.DisconnectKey)).Methods("DELETE")
 	s.HandleFunc("/key/settings", middleware.ValidateEmail(r.UpdateKeySettings)).Methods("PUT")
 	s.HandleFunc("/key/settings", middleware.ValidateEmail(r.GetSettings)).Methods("GET")
+	s.HandleFunc("/sync-account-data", r.SyncDataWithClientBackend).Methods("POST")
 
 	//trades
 	s.HandleFunc("/active_trades", middleware.ValidateEmail(r.GetOpenTrades)).Methods("GET")
