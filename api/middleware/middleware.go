@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
+	"strings"
 	"github.com/asaskevich/govalidator"
 	"github.com/go-playground/validator/v10"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/auth"
@@ -22,6 +22,59 @@ func MiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
 		r.Header.Set("Content-Type", "application/json")
 		next(w, r)
 	}
+}
+func compareStrings(str1, str2 string) bool {
+    return str1 == str2
+}
+func MiddlewareJWT(next http.HandlerFunc) http.HandlerFunc {
+	
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Header.Set("Content-Type", "application/json")
+		// Get the Authorization header from the request
+		authHeader := r.Header.Get("jwt_token")
+
+		// Check if the Authorization header is present
+		if authHeader == "" {
+			// Authorization header is missing
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, "Missing Authorization header")
+			return
+		}
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		result := auth.ValidateToken(token)
+
+		if result == false {
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, "Invalid Bearer token")
+			return
+		}
+		next(w, r)
+
+
+
+		// Get the Authorization header from the request
+		// authHeader := r.Header.Get("jwt_token")
+
+		// // Check if the Authorization header is present
+		// if authHeader == "" {
+		// 	// Authorization header is missing
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	fmt.Fprint(w, "Missing Authorization header")
+		// 	return
+		// }
+
+
+		// actualToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2ODU3MTEwMDcsInVzZXJfaWQiOiJjMGQ1ZTBkMi0xYTA2LTQxYmYtYTQ4NC00YTcwZTA2MmY2MTEifQ.xW125iR3Q5fv0IKGLfSxw5pijReJBvKTXB9MDPfiB9o"
+		// // Extract the token from the Authorization header
+		// token := strings.TrimPrefix(authHeader, "Bearer ")
+		// if !compareStrings(token, actualToken) {
+		// 	// Bearer token is missing or has an invalid format
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	fmt.Fprint(w, "Invalid Bearer token")	
+		// 	return
+		// }
+		// next(w, r)
+	})
 }
 
 func ValidateEmail(next emailNext) http.HandlerFunc {

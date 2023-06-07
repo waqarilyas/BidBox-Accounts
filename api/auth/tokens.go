@@ -79,3 +79,41 @@ func ExtractTokenID(r *http.Request) (string, error) {
 	}
 	return "", nil
 }
+
+func ValidateToken(tokenString string) bool {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Verify the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Invalid signing method")
+		}
+
+		// Return the secret key used for signing
+		return []byte(os.Getenv("API_SECRET")), nil
+	})
+
+	if err != nil || !token.Valid {
+		// Token is invalid or there was an error
+		return false
+	}
+
+	return true
+}
+
+func ExtractID(tokenString string) (string, error) {
+	
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("API_SECRET")), nil
+	})
+	if err != nil {
+		return "", err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		uid := claims["user_id"]
+		return uid.(string), nil
+	}
+	return "", nil
+}
