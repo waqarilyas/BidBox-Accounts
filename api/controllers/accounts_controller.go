@@ -3,9 +3,8 @@ package controllers
 import (
 	"errors"
 	"net/http"
-	"strings"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/kryptomind/bidboxapi/AccountsService/api/helpers"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
@@ -23,19 +22,10 @@ type ExchangeResponse struct {
 	ImageSrc  string `json:"image_src"`
 	Id        int    `json:"id"`
 	Connected bool   `json:"connected"`
+	IsActive  bool   `json:"is_active"`
 }
 
-func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
+func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get all exchanges
 	exchange := models.Exchanges{}
@@ -55,22 +45,13 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 			ImageSrc:  e.ImageSrc,
 			Id:        int(e.Id.ID()),
 			Connected: false,
+			IsActive:  e.IsActive,
 		}
-	}
-
-	//get user by email address
-	user := models.User{}
-	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	if err != nil {
-		// response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
-		response.JSON(w, http.StatusOK, exchangeResponses)
-
-		return
 	}
 
 	//get keys by user id
 	key := models.Key{}
-	keys, err := key.FindKeysByUserId(server.DB, userRes.Id)
+	keys, err := key.FindKeysByUserEmail(server.DB, email)
 	if err != nil {
 		response.JSON(w, http.StatusOK, exchangeResponses)
 		return
@@ -89,29 +70,11 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusOK, exchangeResponses)
 }
 
-func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
+func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request, email string) {
 	exchange := r.URL.Query().Get("exchange")
 
-	if email == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
-		return
-	}
 	if exchange == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
-		return
-	}
-
-	if !govalidator.IsEmail(email) {
-		response.ERROR(w, http.StatusBadRequest, errors.New("invalid email address"))
-		return
-	}
-
-	//get user by email address
-	user := models.User{}
-	userRes, err := user.FindUserByEmail(server.DB, strings.ToLower(email))
-	if err != nil {
-		response.ERROR(w, http.StatusBadRequest, errors.New("no user found with given email address"))
 		return
 	}
 
@@ -125,14 +88,13 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 
 	//get keys by user id
 	key := models.Key{}
-	keys, err := key.FindKeyByUserIdAndShort(server.DB, userRes.Id, dbExchange.Short)
+	keys, err := key.FindKeyByUserEmailAndShort(server.DB, email, dbExchange.Short)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
 		return
 	}
 
 	//get account based on key
-
 	account := models.Accounts{}
 
 	dbAccount, err := account.GetAccountByApiKeyId(server.DB, keys.Keyid)
@@ -142,7 +104,6 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 	}
 
 	response.JSON(w, http.StatusOK, dbAccount)
-
 }
 
 func (server *Server) GetSupportedExchange(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +116,6 @@ func (server *Server) GetSupportedExchange(w http.ResponseWriter, r *http.Reques
 	}
 
 	response.JSON(w, http.StatusOK, exchanges)
-
 }
 
 func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
@@ -168,5 +128,93 @@ func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, exchanges)
+}
 
+func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, email string) {
+	userEmail := r.URL.Query().Get("email")
+	if userEmail == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
+		return
+	}
+
+	key := models.Key{}
+	apiKeys, err := key.FindKeysByUserEmail(server.DB, userEmail)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	keys := *apiKeys
+
+	for i, v := range *apiKeys {
+
+		keys[i].ApiKey, err = helpers.DecryptStrings(v.ApiKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting api key"))
+			return
+		}
+
+		if v.Passphrase != "" {
+			keys[i].Passphrase, err = helpers.DecryptStrings(v.Passphrase)
+			if err != nil {
+				response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting passphrase"))
+				return
+			}
+		}
+		keys[i].SecretKey, err = helpers.DecryptStrings(v.SecretKey)
+		if err != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while decrypting secret key"))
+			return
+		}
+
+	}
+
+	response.JSON(w, http.StatusOK, keys)
+}
+
+func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
+	exchange := r.URL.Query().Get("exchange")
+	if exchange == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("exchange is required"))
+		return
+	}
+
+	userEmail := r.URL.Query().Get("email")
+	if exchange == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("user email is required"))
+		return
+	}
+
+	key := models.Key{}
+	apiKeys, err := key.FindKeyByUserEmailAndShort(server.DB, userEmail, exchange)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("provided exchange not connected"))
+		return
+	}
+
+	decrypted_api_key, err := helpers.DecryptStrings(apiKeys.ApiKey)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+
+	}
+	decrypted_passphrase, err := helpers.DecryptStrings(apiKeys.Passphrase)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+
+	}
+	decrypted_secret, err := helpers.DecryptStrings(apiKeys.SecretKey)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong while getting api key"))
+		return
+	}
+
+	exchangeResponse := map[string]string{
+		"api_key":    decrypted_api_key,
+		"passphrase": decrypted_passphrase,
+		"secret":     decrypted_secret,
+	}
+
+	response.JSON(w, http.StatusOK, exchangeResponse)
 }
