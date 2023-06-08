@@ -16,6 +16,7 @@ var server = controllers.Server{}
 func Run() {
 	err := godotenv.Load()
 	log := logrus.New()
+
 	log.SetFormatter(&nested.Formatter{
 		HideKeys:    true,
 		FieldsOrder: []string{"file", "function"},

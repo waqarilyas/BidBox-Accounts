@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres" //postgres database driver
+	"github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -31,6 +32,7 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 
 	// server.DB.Debug().AutoMigrate(&models.Key{}) //database migration
 	server.Router = mux.NewRouter()
+	server.Router.Use(middleware.EnableCORS)
 	server.initializeRoutes()
 }
 

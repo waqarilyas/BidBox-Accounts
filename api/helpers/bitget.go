@@ -79,8 +79,6 @@ func GetAccountDetailsList(apiSecret string, apiKey string, passphrase string) (
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		fmt.Print("-----error in request---", err.Error())
-
 		return "", err
 	}
 
@@ -100,7 +98,7 @@ func GetAccountDetailsList(apiSecret string, apiKey string, passphrase string) (
 
 	body, readErr := ioutil.ReadAll(res.Body)
 	if readErr != nil {
-		fmt.Print("---read error---", err.Error())
+
 		return "", readErr
 	}
 

@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -109,6 +110,8 @@ func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
+	fmt.Println("---previous---", prev)
+
 	if err := key.Validate(prev); err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
@@ -138,4 +141,72 @@ func (s *Server) DisconnectKey(w http.ResponseWriter, r *http.Request, email str
 	}
 
 	response.JSON(w, http.StatusOK, "disconnected key")
+}
+
+func (s *Server) SyncDataWithClientBackend(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+	}
+
+	var user models.User
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	if user.Email == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("email is required"))
+		return
+	}
+
+	existingUser, err := user.FindUserByEmail(s.DB, user.Email)
+
+	if err != nil {
+		newUser := &models.User{
+			Name:     user.Name,
+			Country:  user.Country,
+			UserName: user.UserName,
+			Phone:    user.Phone,
+			TimeZone: user.TimeZone,
+			Email:    user.Email,
+		}
+		err := s.DB.Debug().Create(newUser).Error
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		response.JSON(w, http.StatusOK, newUser)
+
+	} else {
+		changes := make(map[string]interface{})
+
+		if user.Name != "" {
+			changes["name"] = user.Name
+		}
+		if user.Country != "" {
+			changes["country"] = user.Country
+		}
+		if user.UserName != "" {
+			changes["user_name"] = user.UserName
+		}
+		if user.Phone != "" {
+			changes["phone"] = user.Phone
+		}
+		if user.TimeZone != "" {
+			changes["time_zone"] = user.TimeZone
+		}
+
+		if len(changes) > 0 {
+			err := s.DB.Debug().Model(&models.User{}).Where("email = ?", user.Email).Updates(changes).Error
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+		response.JSON(w, http.StatusOK, existingUser)
+		return
+	}
 }
