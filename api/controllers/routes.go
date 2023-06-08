@@ -6,6 +6,7 @@ import (
 
 func (r *Server) initializeRoutes() {
 	s := r.Router.PathPrefix("/accounts").Subrouter()
+
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
 	//accounts routes

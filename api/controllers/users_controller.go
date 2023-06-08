@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -108,6 +109,8 @@ func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, 
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	fmt.Println("---previous---", prev)
 
 	if err := key.Validate(prev); err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
