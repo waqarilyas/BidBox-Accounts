@@ -71,9 +71,9 @@ func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusBadRequest, "Invalid email or Password")
 		return
 	}
-
+	// fmt.Println("user", user.Id.String())
 	// logic to create secret key
-	token, err := auth.CreateToken(payload.UserId)
+	token, err := auth.CreateToken(user.Id.String())
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
