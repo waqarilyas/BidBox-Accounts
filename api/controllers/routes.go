@@ -45,6 +45,6 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
-	
+
 	s.HandleFunc("/changePassword", middleware.MiddlewareJWT(r.ChangePassword)).Methods("POST")
 }

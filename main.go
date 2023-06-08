@@ -35,11 +35,6 @@ func Run() {
 
 	server.Initialize(os.Getenv("DB_DRIVER"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_PORT"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
 
-	// BitgetWebSockets.Connect()
-	// if err != nil {
-	// 	fmt.Println("Error:", err)
-	// }
-
 	server.Run(":8080")
 }
 
