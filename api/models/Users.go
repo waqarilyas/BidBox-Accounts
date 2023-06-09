@@ -17,6 +17,11 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 	Strategy  string    `json:"strategy"`
 	Mode      string    `json:"mode"`
+	Name      string    `gorm:"default:''" json:"name"`
+	Country   string    `gorm:"default:''" json:"country"`
+	UserName  string    `gorm:"default:''" json:"user_name"`
+	TimeZone  string    `gorm:"default:''" json:"time_zone"`
+	Phone     string    `gorm:"default:''" json:"phone"`
 }
 
 func (u *User) FindUserById(db *gorm.DB, uid uint32) (*User, error) {
@@ -75,4 +80,25 @@ func (u *User) ChangeMode(db *gorm.DB, mode string) (*User, error) {
 		return &User{}, err
 	}
 	return u, nil
+}
+
+func (k *User) ValidateUser(prev *User) error {
+	if k.Name == "" {
+		k.Name = prev.Name
+	}
+	if k.Country == "" {
+		k.Country = prev.Country
+	}
+	if k.UserName == "" {
+		k.UserName = prev.UserName
+	}
+	if k.TimeZone == "" {
+		k.TimeZone = prev.TimeZone
+	}
+
+	if k.Phone == prev.Phone {
+		k.Phone = prev.Phone
+	}
+
+	return errors.New("strategy or mode is incorrect")
 }

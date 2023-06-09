@@ -6,6 +6,7 @@ import (
 
 func (r *Server) initializeRoutes() {
 	s := r.Router.PathPrefix("/accounts").Subrouter()
+
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
 	//accounts routes
@@ -16,6 +17,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/disconnect", middleware.ValidateEmail(r.DisconnectKey)).Methods("DELETE")
 	s.HandleFunc("/key/settings", middleware.ValidateEmail(r.UpdateKeySettings)).Methods("PUT")
 	s.HandleFunc("/key/settings", middleware.ValidateEmail(r.GetSettings)).Methods("GET")
+	s.HandleFunc("/sync-account-data", r.SyncDataWithClientBackend).Methods("POST")
 
 	//trades
 	s.HandleFunc("/active_trades", middleware.ValidateEmail(r.GetOpenTrades)).Methods("GET")
@@ -43,6 +45,6 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
-	
+
 	s.HandleFunc("/changePassword", middleware.MiddlewareJWT(r.ChangePassword)).Methods("POST")
 }

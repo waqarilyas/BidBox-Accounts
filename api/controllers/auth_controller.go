@@ -2,17 +2,17 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
-	"fmt"
+
 	"github.com/kryptomind/bidboxapi/AccountsService/api/auth"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/helpers"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models/admin"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 	"github.com/pquerna/otp/totp"
 	// "github.com/dgrijalva/jwt-go"
-
 )
 
 func (s *Server) SignUpUser(w http.ResponseWriter, r *http.Request) {
@@ -195,8 +195,6 @@ func (s *Server) ValidateOTP(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, resp)
 }
 
-
-
 func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPResponse
 
@@ -229,11 +227,10 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	}
 	s.DB.Model(&user).Updates(dataToUpdate)
 
-
 	response.JSON(w, http.StatusOK, "OTP Updated Successfully")
 
 }
-	
+
 func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	r.Header.Set("Content-Type", "application/json")
 	// Get the Authorization header from the request
@@ -254,11 +251,11 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusBadRequest, err)
 		return
 	}
-	
+
 	var user admin.Admin
 	result := s.DB.First(&user, "id = ?", strings.ToLower(userID))
 	if result.Error != nil {
-		response.JSON(w, http.StatusBadRequest, "Invalid email or Password")
+		response.JSON(w, http.StatusBadRequest, "Invalid Password")
 		return
 	}
 
@@ -268,7 +265,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if plain != payload.Password {
-		response.JSON(w, http.StatusBadRequest, "Invalid email or Password")
+		response.JSON(w, http.StatusBadRequest, "Invalid Password")
 		return
 	}
 	cipher, err := helpers.EncryptStrings(payload.NewPassword)
