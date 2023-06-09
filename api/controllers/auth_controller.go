@@ -212,7 +212,7 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	if authHeader == "" {
 		// Authorization header is missing
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing Authorization header")
+		fmt.Fprint(w, "Missing Authorization header in client request")
 		return
 	}
 	token := strings.TrimPrefix(authHeader, "Bearer ")
