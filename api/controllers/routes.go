@@ -2,10 +2,24 @@ package controllers
 
 import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
+	"github.com/rs/cors"
 )
 
 func (r *Server) initializeRoutes() {
 	s := r.Router.PathPrefix("/accounts").Subrouter()
+
+	// Create a new CORS middleware instance
+	// c := cors.Default()
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Add the origin of your local development environment
+		AllowCredentials: true,          // Allow sending credentials (e.g., cookies)
+	})
+
+	// Apply CORS middleware to the entire subrouter
+	s.Use(c.Handler)
+
+	s.HandleFunc("/otp/verify", middleware.MiddlewareJWT(r.VerifyOTP)).Methods("POST")
 
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
@@ -43,7 +57,6 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/login", middleware.MiddlewareJSON(r.LoginUser)).Methods("POST")
 	s.HandleFunc("/otp/enable", middleware.MiddlewareJWT(r.EnableOTP)).Methods("POST")
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
-	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
 
 	s.HandleFunc("/changePassword", middleware.MiddlewareJWT(r.ChangePassword)).Methods("POST")
