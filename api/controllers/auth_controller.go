@@ -71,9 +71,9 @@ func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusBadRequest, "Invalid email or Password")
 		return
 	}
-
+	// fmt.Println("user", user.Id.String())
 	// logic to create secret key
-	token, err := auth.CreateToken(payload.UserId)
+	token, err := auth.CreateToken(user.Id.String())
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -210,7 +210,7 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	if authHeader == "" {
 		// Authorization header is missing
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing Authorization header")
+		fmt.Fprint(w, "Missing Authorization header in client request")
 		return
 	}
 	token := strings.TrimPrefix(authHeader, "Bearer ")
