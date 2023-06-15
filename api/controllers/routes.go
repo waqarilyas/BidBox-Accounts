@@ -24,7 +24,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/bitget_history", middleware.ValidateEmail(r.GetClosedTrades)).Methods("GET")
 	// s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
 	// s.HandleFunc("/cancel_order", middleware.ValidateEmail(r.DeleteOrder)).Methods("POST")
-
+	s.HandleFunc("/statements", middleware.ValidateEmail(r.GetStatements)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetHistory)).Methods("GET")
 	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoard)).Methods("GET")
 

@@ -80,9 +80,9 @@ func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 
 func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 	time := r.URL.Query().Get("time")
-	var ords []models.Order
+	var ords []models.Statements
 	if time == "month" {
-		order := models.Order{}
+		order := models.Statements{}
 		orders, err := order.GetOrderThisMonth(server.DB)
 		if err != nil {
 			response.ERROR(w, http.StatusInternalServerError, err)
@@ -90,7 +90,7 @@ func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 		}
 		ords = *orders
 	} else if time == "day" {
-		order := models.Order{}
+		order := models.Statements{}
 		orders, err := order.GetOrderThisDay(server.DB)
 		if err != nil {
 			response.ERROR(w, http.StatusInternalServerError, err)
@@ -98,7 +98,7 @@ func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 		}
 		ords = *orders
 	} else if time == "alltime" || time == "" {
-		order := models.Order{}
+		order := models.Statements{}
 		orders, err := order.GetOrderAllTime(server.DB)
 		if err != nil {
 			response.ERROR(w, http.StatusInternalServerError, err)
