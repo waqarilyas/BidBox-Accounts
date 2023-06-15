@@ -37,16 +37,21 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	order := models.Order{}
-	c1, err := order.GetActiveTrades(server.DB)
+	positions := models.Position{}
+	c1, err := positions.GetActivePositions(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	hist := models.History{}
-	c2, err := hist.GetSuccessfulTrades(server.DB)
+	// order := models.Order{}
+	// c1, err := order.GetActiveTrades(server.DB)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
+	
+	hist := models.Position{}
+	c2, err := hist.GetSuccessfulPositions(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
