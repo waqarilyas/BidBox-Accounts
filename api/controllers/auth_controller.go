@@ -214,15 +214,15 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, errors.New("otp enabled required"))
 		return
 	}
-	tokenID, err := auth.ExtractTokenID(r)
-	if err != nil {
-		response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != id {
-		response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-		return
-	}
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
 
 	var user admin.Admin
 	result := s.DB.First(&user, "id = ?", strings.ToLower(id))
@@ -264,15 +264,15 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenID, err := auth.ExtractTokenID(r)
-	if err != nil {
-		response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
-	if tokenID != id {
-		response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-		return
-	}
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
 
 	var user admin.Admin
 	result := s.DB.First(&user, "id = ?", id)
@@ -302,4 +302,51 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	s.DB.Model(&user).Updates(dataToUpdate)
 
 	response.JSON(w, http.StatusOK, "Password successfully updated")
+}
+
+
+
+func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
+		return
+	}
+	var payload *admin.ChangeTimeframeInput
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		response.JSON(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if payload.Timeframe == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe is required"))
+		return
+	}
+
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
+
+	var user admin.Settings
+	// result := s.DB.First(&user, "id = ?", id)
+	// if result.Error != nil {
+	// 	response.JSON(w, http.StatusBadRequest, "Invalid Credentials")
+	// 	return
+	// }
+
+	dataToUpdate := admin.Settings{
+		Timeframe: payload.Timeframe,
+	}
+
+	s.DB.Model(&user).Updates(dataToUpdate)
+
+	response.JSON(w, http.StatusOK, "TimeFrame successfully updated")
 }

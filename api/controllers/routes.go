@@ -41,10 +41,10 @@ func (r *Server) initializeRoutes() {
 
 	s.HandleFunc("/register", middleware.MiddlewareJSON(r.SignUpUser)).Methods("POST")
 	s.HandleFunc("/login", middleware.MiddlewareJSON(r.LoginUser)).Methods("POST")
-	s.HandleFunc("/otp/enable", middleware.MiddlewareAuth(r.EnableOTP)).Methods("POST")
+	s.HandleFunc("/otp/enable", middleware.MiddlewareJSON(r.EnableOTP)).Methods("POST")
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
-
-	s.HandleFunc("/changePassword", middleware.MiddlewareAuth(r.ChangePassword)).Methods("POST")
+	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
+	s.HandleFunc("/changePassword", middleware.MiddlewareJSON(r.ChangePassword)).Methods("POST")
 }
