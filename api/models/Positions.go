@@ -1,4 +1,5 @@
 package models
+
 import (
 	"time"
 
@@ -97,4 +98,15 @@ func (u *Position) GetSuccessfulPositions(db *gorm.DB) (int, error) {
 	}
 
 	return count, nil
+}
+
+func (u *Position) GetClosedPositions(db *gorm.DB, email string, service string) (*[]Position, error) {
+	pos := []Position{}
+
+	err := db.Model(Position{}).Where("user_email = ? AND exchange = ? AND status = ?", email, service, "closed").Find(&pos).Error
+	if err != nil {
+		return &[]Position{}, err
+	}
+
+	return &pos, nil
 }
