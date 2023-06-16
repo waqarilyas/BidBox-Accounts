@@ -70,14 +70,14 @@ func (st *Statements) GetOrderAllTime(db *gorm.DB) (*[]Statements, error) {
 	return &ords, nil
 }
 
-func (st *Statements) GetStatementsToday(db *gorm.DB, email string, service string) (*[]Statements, error) {
+func (st *Statements) GetStatementsToday(db *gorm.DB, email string, service string, limit int, offset int) (*[]Statements, error) {
 	ords := []Statements{}
 
 	now := time.Now()
 	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
 
-	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ? AND created_time >= ? AND created_time <= ?", email, service, startOfDay, endOfDay).Find(&ords).Error
+	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ? AND created_time >= ? AND created_time <= ?", email, service, startOfDay, endOfDay).Limit(limit).Offset(offset).Find(&ords).Error
 	if err != nil {
 		return &[]Statements{}, err
 	}
@@ -85,10 +85,10 @@ func (st *Statements) GetStatementsToday(db *gorm.DB, email string, service stri
 	return &ords, nil
 }
 
-func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service string) (*[]Statements, error) {
+func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service string, limit int, offset int) (*[]Statements, error) {
 	ords := []Statements{}
 
-	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ?", email, service).Find(&ords).Error
+	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ?", email, service).Limit(limit).Offset(offset).Find(&ords).Error
 	if err != nil {
 		return &[]Statements{}, err
 	}
