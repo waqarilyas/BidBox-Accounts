@@ -7,17 +7,18 @@ import (
 )
 
 type Statements struct {
-	UserEmail   string
-	OrderId     string
-	Exchange    string
-	OpenVal     string
-	CloseVal    string
-	Symbol      string
-	CreatedTime time.Time `gorm:"type:timestamptz;default:now()" json:"created_at"`
-	UpdatedTime time.Time `gorm:"type:timestamptz;default:now()" json:"updated_at"`
-	Side        string
-	ClosedPnl   string
-	Quantity    string
+	StatementCreatedAt time.Time
+	UserEmail          string
+	OrderId            string
+	Exchange           string
+	OpenVal            string
+	CloseVal           string
+	Symbol             string
+	CreatedTime        time.Time `gorm:"type:timestamptz;default:now()" json:"created_at"`
+	UpdatedTime        time.Time `gorm:"type:timestamptz;default:now()" json:"updated_at"`
+	Side               string
+	ClosedPnl          string
+	Quantity           string
 }
 
 func (st *Statements) FindStatements(db *gorm.DB, email string, service string) (*[]Statements, error) {
@@ -64,6 +65,80 @@ func (st *Statements) GetOrderAllTime(db *gorm.DB) (*[]Statements, error) {
 	err := db.Model(Statements{}).Order("closed_pnl DESC").Find(&ords).Error
 	if err != nil {
 		return &[]Statements{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetStatementsToday(db *gorm.DB, email string, service string, limit int, offset int) (*[]Statements, error) {
+	ords := []Statements{}
+
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ? AND created_time >= ? AND created_time <= ?", email, service, startOfDay, endOfDay).Limit(limit).Offset(offset).Find(&ords).Error
+	if err != nil {
+		return &[]Statements{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service string, limit int, offset int) (*[]Statements, error) {
+	ords := []Statements{}
+
+	err := db.Model(Statements{}).Where("user_email = ? AND exchange = ?", email, service).Limit(limit).Offset(offset).Find(&ords).Error
+	if err != nil {
+		return &[]Statements{}, err
+	}
+
+	return &ords, nil
+}
+
+type Result struct {
+	Symbol string
+	Profit float64
+}
+
+func (st *Statements) GetCoinwiseToday(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ? AND created_time >= ? AND created_time <= ?", email, service, startOfDay, endOfDay).Group("symbol").Scan(&ords).Error
+
+	if err != nil {
+		return &[]Result{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetCoinwiseMonth(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ? AND created_time >= ?", email, service, startOfMonth).Group("symbol").Scan(&ords).Error
+
+	if err != nil {
+		return &[]Result{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetCoinwiseAllTime(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ?", email, service).Group("symbol").Scan(&ords).Error
+
+	if err != nil {
+		return &[]Result{}, err
 	}
 
 	return &ords, nil

@@ -309,7 +309,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, "Password successfully updated")
 }
 
-
+// comment
 
 func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 
@@ -329,7 +329,6 @@ func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe is required"))
 		return
 	}
-
 	// tokenID, err := auth.ExtractTokenID(r)
 	// if err != nil {
 	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
@@ -339,7 +338,6 @@ func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 	// 	return
 	// }
-
 	var user admin.Settings
 	// result := s.DB.First(&user, "id = ?", id)
 	// if result.Error != nil {
@@ -354,4 +352,24 @@ func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 	s.DB.Model(&user).Updates(dataToUpdate)
 
 	response.JSON(w, http.StatusOK, "TimeFrame successfully updated")
+}
+
+func (server *Server) GetTimeframe(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
+		return
+	}
+	key := *&admin.Settings{}
+
+	timeframe, err := key.GetTimeframe(server.DB)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	
+	res := make(map[string]interface{})
+	res["timeframe"] = timeframe
+	response.JSON(w, http.StatusOK, res)
 }

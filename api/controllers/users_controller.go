@@ -49,7 +49,7 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 	// 	response.ERROR(w, http.StatusInternalServerError, err)
 	// 	return
 	// }
-	
+
 	hist := models.Position{}
 	c2, err := hist.GetSuccessfulPositions(server.DB)
 	if err != nil {
@@ -239,3 +239,28 @@ func (s *Server) SyncDataWithClientBackend(w http.ResponseWriter, r *http.Reques
 		return
 	}
 }
+
+func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service is required"))
+		return
+	}
+
+	st := models.Position{}
+	sts, err := st.GetClosedPositions(server.DB, email, service)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if len(*sts) == 0 {
+		res := make(map[string]string)
+		res["msg"] = "record not found"
+		response.JSON(w, http.StatusOK, res)
+		return
+	}
+	response.JSON(w, http.StatusOK, sts)
+}
+
