@@ -28,6 +28,8 @@ type LeaderboardUser struct {
 	UserEmail string
 	Name      string
 	ClosedPnl float64
+	Country   string
+	Username  string
 }
 
 type LeaderboardAPI struct {
@@ -57,6 +59,8 @@ func (api *LeaderboardAPI) GetLeaderboardToday() ([]LeaderboardUser, error) {
 			UserEmail: user.Email,
 			Name:      user.Name,
 			ClosedPnl: closedPnl,
+			Country:   user.Country,
+			Username:  user.UserName,
 		}
 	}
 
@@ -115,6 +119,8 @@ func (api *LeaderboardAPI) GetLeaderboardThisWeek() ([]LeaderboardUser, error) {
 			UserEmail: user.Email,
 			Name:      user.Name,
 			ClosedPnl: closedPnl,
+			Country:   user.Country,
+			Username:  user.UserName,
 		}
 	}
 
@@ -144,6 +150,8 @@ func (api *LeaderboardAPI) GetLeaderboardThisMonth() ([]LeaderboardUser, error) 
 			UserEmail: user.Email,
 			Name:      user.Name,
 			ClosedPnl: closedPnl,
+			Country:   user.Country,
+			Username:  user.UserName,
 		}
 	}
 
@@ -241,6 +249,8 @@ func (api *LeaderboardAPI) GetLeaderboardAllTime() ([]LeaderboardUser, error) {
 			UserEmail: user.Email,
 			Name:      user.Name,
 			ClosedPnl: closedPnl,
+			Country:   user.Country,
+			Username:  user.UserName,
 		}
 	}
 
