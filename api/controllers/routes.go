@@ -39,7 +39,7 @@ func (r *Server) initializeRoutes() {
 	// s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
 	// s.HandleFunc("/cancel_order", middleware.ValidateEmail(r.DeleteOrder)).Methods("POST")
 	s.HandleFunc("/statements", middleware.ValidateEmail(r.GetStatements)).Methods("GET")
-	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoard)).Methods("GET")
+	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoardv2)).Methods("GET")
 
 	//coins
 	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.GetCoins)).Methods("GET")
