@@ -299,6 +299,50 @@ func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service st
 	return &ords, nil
 }
 
+// func (api *LeaderboardAPI) GetLeaderboardThisWeek() ([]LeaderboardUser, error) {
+// 	users := []User{}
+// 	err := api.db.Find(&users).Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	leaderboard := make([]LeaderboardUser, len(users))
+// 	for i, user := range users {
+// 		orders, err := api.getOrdersThisWeek(user.Email)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		closedPnl := api.calculateCumulativePnl(orders)
+// 		leaderboard[i] = LeaderboardUser{
+// 			UserEmail: user.Email,
+// 			Name:      user.Name,
+// 			ClosedPnl: closedPnl,
+// 		}
+// 	}
+
+// 	sort.Slice(leaderboard, func(i, j int) bool {
+// 		return leaderboard[i].ClosedPnl > leaderboard[j].ClosedPnl
+// 	})
+
+// 	return leaderboard, nil
+// }
+
+// func (api *LeaderboardAPI) getOrdersThisWeek(email string) ([]Statements, error) {
+// 	orders := []Statements{}
+
+// 	now := time.Now()
+// 	startOfWeek := now.AddDate(0, 0, -int(now.Weekday())).Truncate(24 * time.Hour)
+// 	endOfWeek := startOfWeek.AddDate(0, 0, 7).Add(-time.Nanosecond)
+
+// 	err := api.db.Model(Statements{}).Where("user_email = ? AND created_time >= ? AND created_time <= ?", email, startOfWeek, endOfWeek).Find(&orders).Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return orders, nil
+// }
+
 type Result struct {
 	Symbol string
 	Profit float64

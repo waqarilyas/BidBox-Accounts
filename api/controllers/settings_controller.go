@@ -79,6 +79,7 @@ func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, updatedcond)
 }
 
+// check this
 func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 	time := r.URL.Query().Get("time")
 	var ords []models.Statements
@@ -91,6 +92,15 @@ func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 		}
 		ords = *orders
 	} else if time == "day" {
+		order := models.Statements{}
+		orders, err := order.GetOrderThisDay(server.DB)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+		ords = *orders
+
+	} else if time == "week" {
 		order := models.Statements{}
 		orders, err := order.GetOrderThisDay(server.DB)
 		if err != nil {
@@ -121,6 +131,8 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		data, error := api.GetLeaderboardThisMonth()
 		if error != nil {
 			fmt.Println("------- error handling ------", error)
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
+			return
 		}
 		ords = data
 
@@ -133,11 +145,23 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		}
 		ords = data
 
+	} else if time == "week" {
+		api := models.NewLeaderboardAPI(server.DB)
+		data, error := api.GetLeaderboardThisWeek()
+		if error != nil {
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
+			fmt.Println("------- error handling ------", error)
+			return
+		}
+		ords = data
+
 	} else if time == "alltime" || time == "" {
 		api := models.NewLeaderboardAPI(server.DB)
 		data, error := api.GetLeaderboardAllTime()
 		if error != nil {
 			fmt.Println("------- error handling ------", error)
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
+			return
 		}
 		ords = data
 
