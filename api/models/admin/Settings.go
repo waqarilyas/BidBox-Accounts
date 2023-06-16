@@ -87,3 +87,16 @@ func (s *Settings) UpdateMaintainance(db *gorm.DB, val bool) (*Settings, error) 
 	return s, nil
 
 }
+func (s *Settings) UpdateTimeframe(db *gorm.DB, val string) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"timeframe": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
+
+}

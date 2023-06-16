@@ -11,8 +11,8 @@ type Admin struct {
 
 	OtpVerified bool `gorm:"default:false;"`
 
-	OtpSecret string
-	OtpUrl    string
+	OtpSecret  string
+	OtpUrl     string
 	OtpEnabled string
 }
 
@@ -23,7 +23,7 @@ type RegisterUserInput struct {
 }
 
 type LoginUserInput struct {
-	UserId string `json:"UserId"`
+	UserId   string `json:"UserId"`
 	Email    string `json:"email" bindinig:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -34,10 +34,14 @@ type OTPInput struct {
 }
 
 type OTPResponse struct {
-	OPTEnabled string `json:"opt_enabled"`
+	OPTEnabled string `json:"otp_enabled"`
 }
 
 type ChangePasswordInput struct {
-	Password string `json:"password" binding:"required"`
+	Password    string `json:"password" binding:"required"`
 	NewPassword string `json:"new_password" binding:"required"`
+}
+
+type ChangeTimeframeInput struct {
+	Timeframe string `json:"timeframe" binding:"required"`
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -67,6 +68,7 @@ func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	fmt.Println(plain)
 	if plain != payload.Password {
 		response.JSON(w, http.StatusBadRequest, "Invalid email or Password")
 		return
@@ -203,25 +205,32 @@ func (s *Server) ValidateOTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPResponse
 
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
+		return
+	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		response.JSON(w, http.StatusBadRequest, err)
+		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	r.Header.Set("Content-Type", "application/json")
-	// Get the Authorization header from the request
-	authHeader := r.Header.Get("jwt_token")
 
-	// Check if the Authorization header is present
-	if authHeader == "" {
-		// Authorization header is missing
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing Authorization header in client request")
+	if payload.OPTEnabled == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("otp enabled required"))
 		return
 	}
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	userID, _ := auth.ExtractID(token)
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
+
 	var user admin.Admin
-	result := s.DB.First(&user, "id = ?", strings.ToLower(userID))
+	result := s.DB.First(&user, "id = ?", strings.ToLower(id))
 	if result.Error != nil {
 		response.JSON(w, http.StatusBadRequest, "Invalid User ID")
 		return
@@ -237,19 +246,12 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	r.Header.Set("Content-Type", "application/json")
-	// Get the Authorization header from the request
-	authHeader := r.Header.Get("jwt_token")
 
-	// Check if the Authorization header is present
-	if authHeader == "" {
-		// Authorization header is missing
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing Authorization header")
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
 		return
 	}
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	userID, err := auth.ExtractID(token)
 	var payload *admin.ChangePasswordInput
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -257,8 +259,28 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if payload.NewPassword == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("new password is required"))
+		return
+	}
+
+	if payload.Password == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("password is required"))
+		return
+	}
+
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
+
 	var user admin.Admin
-	result := s.DB.First(&user, "id = ?", strings.ToLower(userID))
+	result := s.DB.First(&user, "id = ?", id)
 	if result.Error != nil {
 		response.JSON(w, http.StatusBadRequest, "Invalid Password")
 		return
@@ -285,4 +307,51 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	s.DB.Model(&user).Updates(dataToUpdate)
 
 	response.JSON(w, http.StatusOK, "Password successfully updated")
+}
+
+
+
+func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
+		return
+	}
+	var payload *admin.ChangeTimeframeInput
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		response.JSON(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if payload.Timeframe == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe is required"))
+		return
+	}
+
+	// tokenID, err := auth.ExtractTokenID(r)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
+	// 	return
+	// }
+	// if tokenID != id {
+	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	// 	return
+	// }
+
+	var user admin.Settings
+	// result := s.DB.First(&user, "id = ?", id)
+	// if result.Error != nil {
+	// 	response.JSON(w, http.StatusBadRequest, "Invalid Credentials")
+	// 	return
+	// }
+
+	dataToUpdate := admin.Settings{
+		Timeframe: payload.Timeframe,
+	}
+
+	s.DB.Model(&user).Updates(dataToUpdate)
+
+	response.JSON(w, http.StatusOK, "TimeFrame successfully updated")
 }

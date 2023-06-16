@@ -37,16 +37,21 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	order := models.Order{}
-	c1, err := order.GetActiveTrades(server.DB)
+	positions := models.Position{}
+	c1, err := positions.GetActivePositions(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	hist := models.History{}
-	c2, err := hist.GetSuccessfulTrades(server.DB)
+	// order := models.Order{}
+	// c1, err := order.GetActiveTrades(server.DB)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
+	
+	hist := models.Position{}
+	c2, err := hist.GetSuccessfulPositions(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -58,6 +63,30 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 	res["successful"] = c2
 	res["transactions"] = c1 + c2
 	response.JSON(w, http.StatusOK, res)
+}
+
+func (server *Server) GetStatements(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service is required"))
+		return
+	}
+
+	st := models.Statements{}
+	sts, err := st.FindStatements(server.DB, email, service)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if len(*sts) == 0 {
+		res := make(map[string]string)
+		res["msg"] = "record not found"
+		response.JSON(w, http.StatusOK, res)
+		return
+	}
+	response.JSON(w, http.StatusOK, sts)
 }
 
 func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email string) {

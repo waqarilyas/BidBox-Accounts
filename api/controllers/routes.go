@@ -38,7 +38,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/bitget_history", middleware.ValidateEmail(r.GetClosedTrades)).Methods("GET")
 	// s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
 	// s.HandleFunc("/cancel_order", middleware.ValidateEmail(r.DeleteOrder)).Methods("POST")
-
+	s.HandleFunc("/statements", middleware.ValidateEmail(r.GetStatements)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetHistory)).Methods("GET")
 	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoard)).Methods("GET")
 
@@ -55,9 +55,9 @@ func (r *Server) initializeRoutes() {
 
 	s.HandleFunc("/register", middleware.MiddlewareJSON(r.SignUpUser)).Methods("POST")
 	s.HandleFunc("/login", middleware.MiddlewareJSON(r.LoginUser)).Methods("POST")
-	s.HandleFunc("/otp/enable", middleware.MiddlewareJWT(r.EnableOTP)).Methods("POST")
+	s.HandleFunc("/otp/enable", middleware.MiddlewareJSON(r.EnableOTP)).Methods("POST")
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
-
-	s.HandleFunc("/changePassword", middleware.MiddlewareJWT(r.ChangePassword)).Methods("POST")
+	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
+	s.HandleFunc("/changePassword", middleware.MiddlewareJSON(r.ChangePassword)).Methods("POST")
 }
