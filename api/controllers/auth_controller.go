@@ -350,7 +350,11 @@ func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) GetTimeframe(w http.ResponseWriter, r *http.Request) {
-
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
+		return
+	}
 	key := *&admin.Settings{}
 
 	timeframe, err := key.GetTimeframe(server.DB)
