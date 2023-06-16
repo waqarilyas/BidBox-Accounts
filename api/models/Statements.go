@@ -96,12 +96,49 @@ func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service st
 	return &ords, nil
 }
 
-func (st *Statements) GetCoinwiseToday(db *gorm.DB, email string, service string) (*[]Statements, error) {
-	ords := []Statements{}
+type Result struct {
+	Symbol string
+	Profit float64
+}
 
-	err := db.Model(Statements{}).Select("SUM (closed_pnl)").Where("user_email = ? AND exchange = ?", email, service).Group("symbol").Find(&ords).Error
+func (st *Statements) GetCoinwiseToday(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ? AND created_time >= ? AND created_time <= ?", email, service, startOfDay, endOfDay).Group("symbol").Scan(&ords).Error
+
 	if err != nil {
-		return &[]Statements{}, err
+		return &[]Result{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetCoinwiseMonth(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ? AND created_time >= ?", email, service, startOfMonth).Group("symbol").Scan(&ords).Error
+
+	if err != nil {
+		return &[]Result{}, err
+	}
+
+	return &ords, nil
+}
+
+func (st *Statements) GetCoinwiseAllTime(db *gorm.DB, email string, service string) (*[]Result, error) {
+	ords := []Result{}
+
+	err := db.Model(Statements{}).Select("SUM(closed_pnl::float) AS profit, symbol").Where("user_email = ? AND exchange = ?", email, service).Group("symbol").Scan(&ords).Error
+
+	if err != nil {
+		return &[]Result{}, err
 	}
 
 	return &ords, nil

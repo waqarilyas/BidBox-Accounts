@@ -96,18 +96,43 @@ func (server *Server) ListCoinwise(w http.ResponseWriter, r *http.Request, email
 		return
 	}
 
+	time := r.URL.Query().Get("time")
+
 	st := models.Statements{}
-	sts, err := st.GetCoinwiseToday(server.DB, email, service)
-	if err != nil {
-		response.ERROR(w, http.StatusInternalServerError, err)
-		return
+	var sts *[]models.Result
+	var err error
+
+	if time == "day" {
+		sts, err = st.GetCoinwiseToday(server.DB, email, service)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+
+	} else if time == "month" {
+		sts, err = st.GetCoinwiseMonth(server.DB, email, service)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+
+	} else {
+		sts, err = st.GetCoinwiseAllTime(server.DB, email, service)
+		if err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+
 	}
 
+	res := make(map[string]interface{})
 	if len(*sts) == 0 {
-		res := make(map[string]string)
-		res["msg"] = "record not found"
+		res["msg"] = "no statements for this user"
+		res["data"] = []string{}
 		response.JSON(w, http.StatusOK, res)
 		return
 	}
-	response.JSON(w, http.StatusOK, sts)
+	res["msg"] = "success"
+	res["data"] = sts
+	response.JSON(w, http.StatusOK, res)
 }
