@@ -25,7 +25,6 @@ func (r *Server) initializeRoutes() {
 	// s.HandleFunc("/order", middleware.ValidateEmail(r.PlaceOrder)).Methods("POST")
 	// s.HandleFunc("/cancel_order", middleware.ValidateEmail(r.DeleteOrder)).Methods("POST")
 	s.HandleFunc("/statements", middleware.ValidateEmail(r.GetStatements)).Methods("GET")
-	s.HandleFunc("/history", middleware.ValidateEmail(r.GetHistory)).Methods("GET")
 	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoard)).Methods("GET")
 
 	//coins
@@ -46,6 +45,8 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
 	s.HandleFunc("/changePassword", middleware.MiddlewareAuth(r.ChangePassword)).Methods("POST")
+
+	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
 
 	// listing
 	s.HandleFunc("/listing/today", middleware.ValidateEmail(r.ListToday)).Methods("GET")
