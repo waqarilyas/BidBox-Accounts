@@ -37,14 +37,16 @@ func (server *Server) ListToday(w http.ResponseWriter, r *http.Request, email st
 		return
 	}
 
+	res := make(map[string]interface{})
 	if len(*sts) == 0 {
-		res := make(map[string]interface{})
-		res["msg"] = "no statements today"
+		res["msg"] = "no statements for this user"
 		res["data"] = []string{}
 		response.JSON(w, http.StatusOK, res)
 		return
 	}
-	response.JSON(w, http.StatusOK, sts)
+	res["msg"] = "success"
+	res["data"] = sts
+	response.JSON(w, http.StatusOK, res)
 }
 
 func (server *Server) ListTotal(w http.ResponseWriter, r *http.Request, email string) {
@@ -74,14 +76,16 @@ func (server *Server) ListTotal(w http.ResponseWriter, r *http.Request, email st
 		return
 	}
 
+	res := make(map[string]interface{})
 	if len(*sts) == 0 {
-		res := make(map[string]interface{})
 		res["msg"] = "no statements for this user"
 		res["data"] = []string{}
 		response.JSON(w, http.StatusOK, res)
 		return
 	}
-	response.JSON(w, http.StatusOK, sts)
+	res["msg"] = "success"
+	res["data"] = sts
+	response.JSON(w, http.StatusOK, res)
 }
 
 func (server *Server) ListCoinwise(w http.ResponseWriter, r *http.Request, email string) {
@@ -93,7 +97,7 @@ func (server *Server) ListCoinwise(w http.ResponseWriter, r *http.Request, email
 	}
 
 	st := models.Statements{}
-	sts, err := st.FindStatements(server.DB, email, service)
+	sts, err := st.GetCoinwiseToday(server.DB, email, service)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return

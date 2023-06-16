@@ -95,3 +95,14 @@ func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service st
 
 	return &ords, nil
 }
+
+func (st *Statements) GetCoinwiseToday(db *gorm.DB, email string, service string) (*[]Statements, error) {
+	ords := []Statements{}
+
+	err := db.Model(Statements{}).Select("SUM (closed_pnl)").Where("user_email = ? AND exchange = ?", email, service).Group("symbol").Find(&ords).Error
+	if err != nil {
+		return &[]Statements{}, err
+	}
+
+	return &ords, nil
+}
