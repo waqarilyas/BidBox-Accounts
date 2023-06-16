@@ -304,7 +304,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, "Password successfully updated")
 }
 
-
+// comment
 
 func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 
