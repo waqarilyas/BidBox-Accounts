@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -105,6 +106,41 @@ func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		ords = *orders
+	} else {
+		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe param is incorrect"))
+		return
+	}
+	response.JSON(w, http.StatusOK, ords)
+}
+
+func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
+	time := r.URL.Query().Get("time")
+	var ords []models.LeaderboardUser
+	if time == "month" {
+		api := models.NewLeaderboardAPI(server.DB)
+		data, error := api.GetLeaderboardThisMonth()
+		if error != nil {
+			fmt.Println("------- error handling ------", error)
+		}
+		ords = data
+
+	} else if time == "day" {
+		api := models.NewLeaderboardAPI(server.DB)
+		data, error := api.GetLeaderboardToday()
+		if error != nil {
+
+			fmt.Println("------- error handling ------", error)
+		}
+		ords = data
+
+	} else if time == "alltime" || time == "" {
+		api := models.NewLeaderboardAPI(server.DB)
+		data, error := api.GetLeaderboardAllTime()
+		if error != nil {
+			fmt.Println("------- error handling ------", error)
+		}
+		ords = data
+
 	} else {
 		response.ERROR(w, http.StatusBadRequest, errors.New("timeframe param is incorrect"))
 		return

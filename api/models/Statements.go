@@ -1,6 +1,9 @@
 package models
 
 import (
+	"fmt"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -19,6 +22,166 @@ type Statements struct {
 	Side               string
 	ClosedPnl          string
 	Quantity           string
+}
+
+type LeaderboardUser struct {
+	UserEmail string
+	Name      string
+	ClosedPnl float64
+}
+
+type LeaderboardAPI struct {
+	db *gorm.DB
+}
+
+func NewLeaderboardAPI(db *gorm.DB) *LeaderboardAPI {
+	return &LeaderboardAPI{db: db}
+}
+
+func (api *LeaderboardAPI) GetLeaderboardToday() ([]LeaderboardUser, error) {
+	users := []User{}
+	err := api.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	leaderboard := make([]LeaderboardUser, len(users))
+	for i, user := range users {
+		orders, err := api.getOrdersToday(user.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		closedPnl := api.calculateCumulativePnl(orders)
+		leaderboard[i] = LeaderboardUser{
+			UserEmail: user.Email,
+			Name:      user.Name,
+			ClosedPnl: closedPnl,
+		}
+	}
+
+	sort.Slice(leaderboard, func(i, j int) bool {
+		return leaderboard[i].ClosedPnl > leaderboard[j].ClosedPnl
+	})
+
+	return leaderboard, nil
+}
+
+func (api *LeaderboardAPI) getOrdersToday(email string) ([]Statements, error) {
+	orders := []Statements{}
+
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDay := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC)
+
+	err := api.db.Model(Statements{}).Where("user_email = ? AND created_time >= ? AND created_time <= ?", email, startOfDay, endOfDay).Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+func (api *LeaderboardAPI) calculateCumulativePnl(orders []Statements) float64 {
+	var pnl float64
+	for _, order := range orders {
+		closedPnl, err := strconv.ParseFloat(order.Quantity, 64)
+		if err != nil {
+			// Handle parsing error if needed
+			fmt.Println("----error close dpnl float format ---", err)
+			continue
+		}
+		pnl += closedPnl
+	}
+	return pnl
+}
+
+func (api *LeaderboardAPI) GetLeaderboardThisWeek() ([]LeaderboardUser, error) {
+	users := []User{}
+	err := api.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	leaderboard := make([]LeaderboardUser, len(users))
+	for i, user := range users {
+		orders, err := api.getOrdersThisWeek(user.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		closedPnl := api.calculateCumulativePnl(orders)
+		leaderboard[i] = LeaderboardUser{
+			UserEmail: user.Email,
+			Name:      user.Name,
+			ClosedPnl: closedPnl,
+		}
+	}
+
+	sort.Slice(leaderboard, func(i, j int) bool {
+		return leaderboard[i].ClosedPnl > leaderboard[j].ClosedPnl
+	})
+
+	return leaderboard, nil
+}
+
+func (api *LeaderboardAPI) GetLeaderboardThisMonth() ([]LeaderboardUser, error) {
+	users := []User{}
+	err := api.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	leaderboard := make([]LeaderboardUser, len(users))
+	for i, user := range users {
+		orders, err := api.getOrdersThisMonth(user.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		closedPnl := api.calculateCumulativePnl(orders)
+		leaderboard[i] = LeaderboardUser{
+			UserEmail: user.Email,
+			Name:      user.Name,
+			ClosedPnl: closedPnl,
+		}
+	}
+
+	sort.Slice(leaderboard, func(i, j int) bool {
+		return leaderboard[i].ClosedPnl > leaderboard[j].ClosedPnl
+	})
+
+	return leaderboard, nil
+}
+
+func (api *LeaderboardAPI) getOrdersThisWeek(email string) ([]Statements, error) {
+	orders := []Statements{}
+
+	now := time.Now()
+	startOfWeek := now.AddDate(0, 0, -int(now.Weekday())).Truncate(24 * time.Hour)
+	endOfWeek := startOfWeek.AddDate(0, 0, 7).Add(-time.Nanosecond)
+
+	err := api.db.Model(Statements{}).Where("user_email = ? AND created_time >= ? AND created_time <= ?", email, startOfWeek, endOfWeek).Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+func (api *LeaderboardAPI) getOrdersThisMonth(email string) ([]Statements, error) {
+	orders := []Statements{}
+
+	now := time.Now()
+	startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
+
+	err := api.db.Model(Statements{}).Where("user_email = ? AND created_time >= ? AND created_time <= ?", email, startOfMonth, endOfMonth).Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }
 
 func (st *Statements) FindStatements(db *gorm.DB, email string, service string) (*[]Statements, error) {
@@ -57,6 +220,46 @@ func (st *Statements) GetOrderThisDay(db *gorm.DB) (*[]Statements, error) {
 	}
 
 	return &ords, nil
+}
+
+func (api *LeaderboardAPI) GetLeaderboardAllTime() ([]LeaderboardUser, error) {
+	users := []User{}
+	err := api.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	leaderboard := make([]LeaderboardUser, len(users))
+	for i, user := range users {
+		orders, err := api.getAllTimeOrders(user.Email)
+		if err != nil {
+			return nil, err
+		}
+
+		closedPnl := api.calculateCumulativePnl(orders)
+		leaderboard[i] = LeaderboardUser{
+			UserEmail: user.Email,
+			Name:      user.Name,
+			ClosedPnl: closedPnl,
+		}
+	}
+
+	sort.Slice(leaderboard, func(i, j int) bool {
+		return leaderboard[i].ClosedPnl > leaderboard[j].ClosedPnl
+	})
+
+	return leaderboard, nil
+}
+
+func (api *LeaderboardAPI) getAllTimeOrders(email string) ([]Statements, error) {
+	orders := []Statements{}
+
+	err := api.db.Model(Statements{}).Where("user_email = ?", email).Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }
 
 func (st *Statements) GetOrderAllTime(db *gorm.DB) (*[]Statements, error) {

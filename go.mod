@@ -17,6 +17,7 @@ require (
 require (
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
+	github.com/rs/cors v1.9.0 // indirect
 )
 
 require (
