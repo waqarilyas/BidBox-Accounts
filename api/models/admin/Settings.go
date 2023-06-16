@@ -100,3 +100,18 @@ func (s *Settings) UpdateTimeframe(db *gorm.DB, val string) (*Settings, error) {
 	return s, nil
 
 }
+
+func (s *Settings) GetTimeframe(db *gorm.DB) (string, error) {
+	// db = db.Model(&Settings{})
+	// if db.Error != nil {
+	// 	return &Settings{}, db.Error
+	// }
+	// return , nil
+
+	setting := &Settings{}
+	err := db.Debug().Model(&Conditions{}).Find(&setting).Error
+	if err != nil {
+		return "", err
+	}
+	return setting.Timeframe, nil
+}

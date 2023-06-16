@@ -263,3 +263,4 @@ func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request,
 	}
 	response.JSON(w, http.StatusOK, sts)
 }
+
