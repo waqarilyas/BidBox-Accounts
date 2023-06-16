@@ -264,3 +264,23 @@ func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request,
 	response.JSON(w, http.StatusOK, sts)
 }
 
+
+func (server *Server) GetClosedPositionsByEmail(w http.ResponseWriter, r *http.Request) {
+	service := r.URL.Query().Get("service")
+	email := r.URL.Query().Get("email")
+	// key := models.Key{}
+	// c, err := key.FindNoOfUsers(server.DB)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
+
+	positions := models.Position{}
+	closedPositions, err := positions.GetClosePositions(server.DB, email, service)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, closedPositions)
+}

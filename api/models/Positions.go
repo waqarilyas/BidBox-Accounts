@@ -110,3 +110,14 @@ func (u *Position) GetClosedPositions(db *gorm.DB, email string, service string)
 
 	return &pos, nil
 }
+
+func (u *Position) GetClosePositions(db *gorm.DB, email string, exchange string) (*[]Position, error) {
+	pos := []Position{}
+
+	err := db.Model(Position{}).Where("status = ? AND exchange = ? AND user_email = ? ", "closed", exchange, email).Find(&pos).Error
+	if err != nil {
+		return &[]Position{}, err
+	}
+
+	return &pos, nil
+}
