@@ -64,10 +64,16 @@ func (a *Admin) UpdateOtp(db *gorm.DB, val string) (*Resp, error) {
 	if db.Error != nil {
 		return &Resp{}, db.Error
 	}
+	var xc bool
+	if val == "true" {
+		xc = true
+	} else {
+		xc = false
+	}
 	res := Resp{
 		Id:          cp.Id,
 		Email:       cp.Email,
-		OtpVerified: cp.OtpVerified,
+		OtpVerified: xc,
 	}
 	return &res, nil
 }
