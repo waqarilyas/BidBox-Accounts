@@ -126,12 +126,7 @@ func (s *Server) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, otpResponse)
 }
 
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
-
 func (s *Server) VerifyOTP(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	var payload *admin.OTPInput
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -368,7 +363,6 @@ func (server *Server) GetTimeframe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	res := make(map[string]interface{})
 	res["timeframe"] = timeframe
 	response.JSON(w, http.StatusOK, res)
