@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -44,4 +45,29 @@ type ChangePasswordInput struct {
 
 type ChangeTimeframeInput struct {
 	Timeframe string `json:"timeframe" binding:"required"`
+}
+
+type Resp struct {
+	Id          uuid.UUID `json:"id"`
+	Email       string    `json:"email"`
+	OtpVerified bool      `json:"otp_verified"`
+}
+
+func (a *Admin) UpdateOtp(db *gorm.DB, val string) (*Resp, error) {
+	cp := Admin{}
+	db = db.Model(&Admin{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"otp_enabled": val,
+			},
+		).Take(&cp)
+	if db.Error != nil {
+		return &Resp{}, db.Error
+	}
+	res := Resp{
+		Id:          cp.Id,
+		Email:       cp.Email,
+		OtpVerified: cp.OtpVerified,
+	}
+	return &res, nil
 }

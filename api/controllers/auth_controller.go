@@ -214,17 +214,9 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, errors.New("otp enabled required"))
 		return
 	}
-	// tokenID, err := auth.ExtractTokenID(r)
-	// if err != nil {
-	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-	// 	return
-	// }
-	// if tokenID != id {
-	// 	response.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-	// 	return
-	// }
 
 	var user admin.Admin
+
 	result := s.DB.First(&user, "id = ?", strings.ToLower(id))
 	if result.Error != nil {
 		response.JSON(w, http.StatusBadRequest, "Invalid User ID")
@@ -234,9 +226,14 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	dataToUpdate := admin.Admin{
 		OtpEnabled: enable,
 	}
-	s.DB.Model(&user).Updates(dataToUpdate)
+	uotp, err := dataToUpdate.UpdateOtp(s.DB, enable)
 
-	response.JSON(w, http.StatusOK, "OTP Updated Successfully")
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, uotp)
 
 }
 
