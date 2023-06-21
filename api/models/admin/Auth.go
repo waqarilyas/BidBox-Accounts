@@ -55,10 +55,15 @@ type Resp struct {
 
 func (a *Admin) UpdateOtp(db *gorm.DB, val string) (*Resp, error) {
 	cp := Admin{}
+	verified := false
+	if val == "true" {
+		verified = true
+	}
 	db = db.Model(&Admin{}).
 		UpdateColumns(
 			map[string]interface{}{
-				"otp_enabled": val,
+				"otp_enabled":  val,
+				"otp_verified": verified,
 			},
 		).Take(&cp)
 	if db.Error != nil {
