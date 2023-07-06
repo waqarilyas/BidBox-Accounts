@@ -51,10 +51,17 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
 	s.HandleFunc("/getTimeframe", middleware.MiddlewareJSON(r.GetTimeframe)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
-	s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
+	// s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
 
 	// listing
 	s.HandleFunc("/listing/today", middleware.ValidateEmail(r.ListToday)).Methods("GET")
 	s.HandleFunc("/listing/total", middleware.ValidateEmail(r.ListTotal)).Methods("GET")
 	s.HandleFunc("/listing/coinwise", middleware.ValidateEmail(r.ListCoinwise)).Methods("GET")
+
+	// updated code afetr hedging logic
+
+	s.HandleFunc("/orders", middleware.ValidateEmail(r.GetUserOrders)).Methods("GET")
+	s.HandleFunc("/positions", middleware.ValidateEmail(r.GetUserOpenPositions)).Methods("GET")
+	s.HandleFunc("/hedge-positions", middleware.ValidateEmail(r.UserClearedHedgePositions)).Methods("GET")
+
 }
