@@ -129,7 +129,7 @@ func (u *Position) GetOpenPositions(db *gorm.DB, email string, service string) (
 func (u *Position) GetClosedGroupedPositions(db *gorm.DB, email string, service string) ([]GroupedPosition, error) {
 	var positions []Position
 	err := db.Model(Position{}).
-		Where("user_email = ? AND exchange = ? AND status = ?", email, service, "dhagcsgdh").
+		Where("user_email = ? AND exchange = ? AND status = ?", email, service, "closed").
 		Find(&positions).Error
 	if err != nil {
 		fmt.Println("🚀 ~ file: Positions.go:131 ~ func ~ err:", err)
