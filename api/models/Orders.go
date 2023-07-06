@@ -41,6 +41,8 @@ type Order struct {
 	OrderType  string
 	CreatedAt  time.Time
 	Profit     float64
+	PositionId int    `json:"position_id"`
+	OrderPrice string `json:"order_price"`
 }
 
 func (o *Order) Initialize(order OrderRequest, email string, client_id string, order_id string) {
@@ -88,4 +90,13 @@ func (o *Order) GetActiveTrades(db *gorm.DB) (int, error) {
 	}
 
 	return count, nil
+}
+
+func GetOrdersByUserEmailAndExchange(db *gorm.DB, email string, exchange string) ([]*Order, error) {
+	var dbOrders []*Order
+	err := db.Where("email = ? AND service = ?", email, exchange).Find(&dbOrders).Error
+	if err != nil {
+		return nil, err
+	}
+	return dbOrders, nil
 }

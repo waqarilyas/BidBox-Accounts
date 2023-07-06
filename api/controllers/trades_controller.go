@@ -5,6 +5,7 @@ import (
 
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -214,4 +215,92 @@ func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request, em
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
+}
+
+// data fetching according to latest hedging logic
+
+func (s *Server) GetUserOrders(w http.ResponseWriter, r *http.Request, email string) {
+
+	service := r.URL.Query().Get("service")
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
+		return
+	}
+
+	if service != "bitget" && service != "binance" && service != "bybit" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
+		return
+	}
+
+	orders, error := models.GetOrdersByUserEmailAndExchange(s.DB, email, service)
+	if error != nil {
+		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, orders)
+}
+
+func (s *Server) GetUserOpenPositions(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
+		return
+	}
+
+	if service != "bitget" && service != "binance" && service != "bybit" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
+		return
+	}
+
+	var positions models.Position
+	positionData, error := positions.GetOpenPositions(s.DB, email, service)
+	if error != nil {
+		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
+		return
+	}
+	response.JSON(w, http.StatusOK, positionData)
+}
+
+func (s *Server) GetUserClosedPositions(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
+		return
+	}
+
+	if service != "bitget" && service != "binance" && service != "bybit" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
+		return
+	}
+
+	var positions models.Position
+	positionData, error := positions.GetOpenPositions(s.DB, email, service)
+	if error != nil {
+		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
+		return
+	}
+	response.JSON(w, http.StatusOK, positionData)
+}
+
+func (s *Server) UserClearedHedgePositions(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
+		return
+	}
+
+	if service != "bitget" && service != "binance" && service != "bybit" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
+		return
+	}
+
+	var positions models.Position
+	positionData, error := positions.GetClosedGroupedPositions(s.DB, email, service)
+	if error != nil {
+		fmt.Println("🚀 ~ file: trades_controller.go:300 ~ func ~ error:", error)
+		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
+		return
+	}
+	response.JSON(w, http.StatusOK, positionData)
 }

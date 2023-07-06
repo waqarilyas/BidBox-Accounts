@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -139,8 +138,6 @@ func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	fmt.Println("---previous---", prev)
-
 	if err := key.Validate(prev); err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
@@ -263,4 +260,3 @@ func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request,
 	}
 	response.JSON(w, http.StatusOK, sts)
 }
-
