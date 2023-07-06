@@ -2,24 +2,10 @@ package controllers
 
 import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
-	"github.com/rs/cors"
 )
 
 func (r *Server) initializeRoutes() {
 	s := r.Router.PathPrefix("/accounts").Subrouter()
-
-	// Create a new CORS middleware instance
-	// c := cors.Default()
-
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Add the origin of your local development environment
-		AllowCredentials: true,          // Allow sending credentials (e.g., cookies)
-	})
-
-	// Apply CORS middleware to the entire subrouter
-	s.Use(c.Handler)
-
-	s.HandleFunc("/otp/verify", middleware.MiddlewareJWT(r.VerifyOTP)).Methods("POST")
 
 	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
 
@@ -52,15 +38,20 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.GetConditions)).Methods("GET")
 	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.UpdateConditions)).Methods("PUT")
 
+	// 2FA
 	s.HandleFunc("/register", middleware.MiddlewareJSON(r.SignUpUser)).Methods("POST")
 	s.HandleFunc("/login", middleware.MiddlewareJSON(r.LoginUser)).Methods("POST")
 	s.HandleFunc("/otp/enable", middleware.MiddlewareJSON(r.EnableOTP)).Methods("POST")
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
+	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
 	s.HandleFunc("/changePassword", middleware.MiddlewareJSON(r.ChangePassword)).Methods("POST")
+
+	// admin settings
 	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
 	s.HandleFunc("/getTimeframe", middleware.MiddlewareJSON(r.GetTimeframe)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
+	s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
 
 	// listing
 	s.HandleFunc("/listing/today", middleware.ValidateEmail(r.ListToday)).Methods("GET")

@@ -79,6 +79,14 @@ func (server *Server) UpdateCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	prev, err := coin.GetCoinById(server.DB, coin.Coin)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	coin.Id = prev.Id
+	coin.Validate(prev)
 	updatedcoin, err := coin.UpdateCoinPair(server.DB, coin.Coin)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
