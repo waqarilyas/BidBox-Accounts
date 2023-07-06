@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
@@ -32,17 +33,19 @@ type OrderResponse struct {
 }
 
 type Order struct {
-	Email      string    `json:"email"`
-	Symbol     string    `json:"symbol"`
-	MarginCoin string    `json:"margin_coin"`
-	Service    string    `json:"service"`
-	Size       string    `json:"size"`
-	Side       string    `json:"side"`
-	OrderType  string    `json:"order_type"`
-	CreatedAt  time.Time `json:"created_at"`
-	Profit     float64   `json:"profit"`
-	PositionId int       `json:"position_id"`
-	OrderPrice string    `json:"order_price"`
+	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
+	Email       string    `json:"email"`
+	Symbol      string    `json:"symbol"`
+	MarginCoin  string    `json:"margin_coin"`
+	Service     string    `json:"service"`
+	Size        string    `json:"size"`
+	Side        string    `json:"side"`
+	OrderType   string    `json:"order_type"`
+	CreatedAt   time.Time `json:"created_at"`
+	Profit      float64   `json:"profit"`
+	PositionId  int       `json:"position_id"`
+	OrderPrice  string    `json:"order_price"`
+	QuoteAmount string    `json:"quote_amount"`
 }
 
 func (o *Order) Initialize(order OrderRequest, email string, client_id string, order_id string) {
