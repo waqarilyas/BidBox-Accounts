@@ -33,7 +33,7 @@ type OrderResponse struct {
 }
 
 type Order struct {
-	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
+	Id          uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"id"`
 	Email       string    `json:"email"`
 	Symbol      string    `json:"symbol"`
 	MarginCoin  string    `json:"margin_coin"`
