@@ -8,23 +8,30 @@ import (
 )
 
 type Position struct {
-	Id             int       `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
-	CreatedAt      time.Time `gorm:"type:timestamptz;default:now()" json:"created_at"`
-	UpdatedAt      time.Time `gorm:"type:timestamptz;default:now()" json:"updated_at"`
-	Symbol         string    `json:"symbol"`
-	Leverage       string    `json:"leverage"`
-	Side           string    `json:"side"`
-	Size           string    `json:"size"`
-	Margin         string    `json:"margin"`
-	UserEmail      string    `gorm:"not null" json:"user_email"`
-	Status         string    `gorm:"default:'opened'" json:"status"`
-	Exchange       string
-	Profit         string
-	OrderId        string
-	Layer          int     `json:"layer"`
-	TotalProfit    float64 `json:"total_profit"`
-	FirstBuyAmount string  `json:"first_buy_amount"`
-	HedgeId        string  `json:"hedge_id"`
+	Id              int       `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt       time.Time `gorm:"type:timestamptz;default:now()" json:"created_at"`
+	UpdatedAt       time.Time `gorm:"type:timestamptz;default:now()" json:"updated_at"`
+	Symbol          string    `json:"symbol"`
+	Leverage        string    `json:"leverage"`
+	OpenPrice       string    `json:"open_price"`
+	LiqPrice        string    `json:"liq_price"`
+	TakeProfit      string    `json:"take_profit"`
+	MarkPrice       string    `json:"mark_price"`
+	StopLoss        string    `json:"stop_loss"`
+	UnrealizedPl    string    `json:"unrealized_pl"`
+	Side            string    `json:"side"`
+	Size            string    `json:"size"`
+	Margin          string    `json:"margin"`
+	UserEmail       string    `gorm:"not null" json:"user_email"`
+	Status          string    `gorm:"default:'opened'" json:"status"`
+	Exchange        string    `json:"exchange"`
+	LastUpdatePrice string    `json:"last_update_price"`
+	OrderId         string    `json:"order_id"`
+	Layer           int       `json:"layer"`
+	TotalProfit     float64   `json:"total_profit"`
+	FirstBuyAmount  string    `json:"first_buy_amount"`
+	HedgeId         string    `json:"hedge_id"`
+	Fee             float64   `json:"fee"`
 }
 
 type GroupedPosition struct {
@@ -141,7 +148,7 @@ func (u *Position) GetClosedGroupedPositions(db *gorm.DB, email string, service 
 
 	// Group positions by hedge_id
 	for _, position := range positions {
-		positionMap[position.HedgeId] = append(positionMap[position.HedgeId], position)
+		positionMap[string(position.HedgeId)] = append(positionMap[position.HedgeId], position)
 	}
 
 	// Convert the map to an array of GroupedPosition
