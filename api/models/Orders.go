@@ -99,7 +99,7 @@ func (o *Order) GetActiveTrades(db *gorm.DB) (int, error) {
 
 func GetOrdersByUserEmailAndExchange(db *gorm.DB, email string, exchange string) ([]*Order, error) {
 	var dbOrders []*Order
-	err := db.Where("email = ? AND service = ?", email, exchange).Find(&dbOrders).Error
+	err := db.Where("email = ? AND service = ?", email, exchange).Order("created_at DESC").Find(&dbOrders).Error
 	if err != nil {
 		return nil, err
 	}
