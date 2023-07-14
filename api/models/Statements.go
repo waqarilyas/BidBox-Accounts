@@ -1,27 +1,24 @@
 package models
 
 import (
-	"fmt"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
 )
 
 type Statements struct {
-	StatementCreatedAt time.Time
-	UserEmail          string
-	OrderId            string
-	Exchange           string
-	OpenVal            string
-	CloseVal           string
-	Symbol             string
-	CreatedTime        time.Time `gorm:"type:timestamptz;default:now()" json:"created_at"`
-	UpdatedTime        time.Time `gorm:"type:timestamptz;default:now()" json:"updated_at"`
-	Side               string
-	ClosedPnl          string
-	Quantity           string
+	UserEmail   string    `json:"user_email"`
+	Exchange    string    `json:"exchange"`
+	Symbol      string    `json:"symbol"`
+	CreatedTime time.Time `json:"created_time"`
+	UpdatedTime time.Time `json:"updated_time"`
+	Side        string    `json:"side"`
+	ClosedPnl   float64   `json:"closed_pnl"`
+	Size        float64   `json:"size"`
+	PositionId  int       `json:"position_id"`
+	QuoteAmount float64   `json:"quote_amount"`
+	ProfitUSD   float64   `json:"profit_usd"`
 }
 
 type LeaderboardUser struct {
@@ -89,13 +86,13 @@ func (api *LeaderboardAPI) getOrdersToday(email string) ([]Statements, error) {
 func (api *LeaderboardAPI) calculateCumulativePnl(orders []Statements) float64 {
 	var pnl float64
 	for _, order := range orders {
-		closedPnl, err := strconv.ParseFloat(order.Quantity, 64)
-		if err != nil {
-			// Handle parsing error if needed
-			fmt.Println("----error close dpnl float format ---", err)
-			continue
-		}
-		pnl += closedPnl
+		// closedPnl, err := (order.Size, 64)
+		// if err != nil {
+		// 	// Handle parsing error if needed
+		// 	fmt.Println("----error close dpnl float format ---", err)
+		// 	continue
+		// }
+		pnl += order.Size
 	}
 	return pnl
 }
