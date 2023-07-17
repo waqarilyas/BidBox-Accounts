@@ -79,6 +79,74 @@ func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, updatedcond)
 }
 
+func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
+	res := make(map[string]interface{}, 0)
+
+	s := admin.Settings{}
+	curr, err := s.GetSettings(server.DB)
+
+	if err != nil {
+		res["status"] = "error"
+		res["message"] = err
+		res["data"] = nil
+
+		response.JSON(w, http.StatusBadRequest, res)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
+		res["status"] = "error"
+		res["message"] = err
+		res["data"] = nil
+
+		response.JSON(w, http.StatusBadRequest, res)
+		return
+	}
+
+	if s.Layers != 0 {
+		_, err := s.UpdateLayers(server.DB, s.Layers)
+		if err != nil {
+			res["status"] = "error"
+			res["message"] = err
+			res["data"] = nil
+
+			response.JSON(w, http.StatusInternalServerError, err)
+			return
+		}
+		curr.Layers = s.Layers
+	}
+
+	if s.ProfitPercentage != 0 {
+		_, err := s.UpdateProfitPercentage(server.DB, s.ProfitPercentage)
+		if err != nil {
+			res["status"] = "error"
+			res["message"] = err
+			res["data"] = nil
+
+			response.JSON(w, http.StatusInternalServerError, err)
+			return
+		}
+		curr.ProfitPercentage = s.ProfitPercentage
+	}
+
+	if s.Leverage != 0 {
+		_, err := s.UpdateLeverage(server.DB, s.Leverage)
+		if err != nil {
+			res["status"] = "error"
+			res["message"] = err
+			res["data"] = nil
+			response.JSON(w, http.StatusInternalServerError, err)
+			return
+		}
+		curr.Leverage = s.Leverage
+	}
+
+	res["status"] = "ok"
+	res["message"] = "success"
+	res["data"] = curr
+	response.JSON(w, http.StatusOK, res)
+}
+
 // check this
 func (server *Server) GetLeaderBoard(w http.ResponseWriter, r *http.Request) {
 	time := r.URL.Query().Get("time")

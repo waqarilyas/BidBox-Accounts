@@ -7,8 +7,11 @@ import (
 )
 
 type Settings struct {
-	Timeframe    string `json:"timeframe"`
-	Maintainence bool   `json:"maintainence"`
+	Timeframe        string  `json:"timeframe"`
+	Maintainence     bool    `json:"maintainence"`
+	Leverage         int     `json:"leverage"`
+	Layers           int     `json:"layers"`
+	ProfitPercentage float64 `json:"profit_percentage"`
 }
 
 type Conditions struct {
@@ -87,6 +90,7 @@ func (s *Settings) UpdateMaintainance(db *gorm.DB, val bool) (*Settings, error) 
 	return s, nil
 
 }
+
 func (s *Settings) UpdateTimeframe(db *gorm.DB, val string) (*Settings, error) {
 	db = db.Model(&Settings{}).
 		UpdateColumns(
@@ -99,6 +103,45 @@ func (s *Settings) UpdateTimeframe(db *gorm.DB, val string) (*Settings, error) {
 	}
 	return s, nil
 
+}
+
+func (s *Settings) UpdateProfitPercentage(db *gorm.DB, val float64) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"profit_percentage": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
+}
+
+func (s *Settings) UpdateLayers(db *gorm.DB, val int) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"layers": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
+}
+
+func (s *Settings) UpdateLeverage(db *gorm.DB, val int) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"leverage": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
 }
 
 func (s *Settings) GetTimeframe(db *gorm.DB) (string, error) {
@@ -114,4 +157,13 @@ func (s *Settings) GetTimeframe(db *gorm.DB) (string, error) {
 		return "", err
 	}
 	return setting.Timeframe, nil
+}
+
+func (s *Settings) GetSettings(db *gorm.DB) (*Settings, error) {
+	setting := Settings{}
+	err := db.Model(Settings{}).Take(&setting).Error
+	if err != nil {
+		return &Settings{}, err
+	}
+	return &setting, nil
 }
