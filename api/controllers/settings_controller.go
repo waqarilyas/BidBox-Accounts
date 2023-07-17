@@ -87,7 +87,7 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		res["status"] = "error"
-		res["message"] = err
+		res["message"] = err.Error()
 		res["data"] = nil
 
 		response.JSON(w, http.StatusBadRequest, res)
@@ -96,7 +96,7 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {
 		res["status"] = "error"
-		res["message"] = err
+		res["message"] = err.Error()
 		res["data"] = nil
 
 		response.JSON(w, http.StatusBadRequest, res)
@@ -107,7 +107,7 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 		_, err := s.UpdateLayers(server.DB, s.Layers)
 		if err != nil {
 			res["status"] = "error"
-			res["message"] = err
+			res["message"] = err.Error()
 			res["data"] = nil
 
 			response.JSON(w, http.StatusInternalServerError, err)
@@ -120,7 +120,7 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 		_, err := s.UpdateProfitPercentage(server.DB, s.ProfitPercentage)
 		if err != nil {
 			res["status"] = "error"
-			res["message"] = err
+			res["message"] = err.Error()
 			res["data"] = nil
 
 			response.JSON(w, http.StatusInternalServerError, err)
@@ -133,7 +133,7 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 		_, err := s.UpdateLeverage(server.DB, s.Leverage)
 		if err != nil {
 			res["status"] = "error"
-			res["message"] = err
+			res["message"] = err.Error()
 			res["data"] = nil
 			response.JSON(w, http.StatusInternalServerError, err)
 			return
@@ -145,6 +145,19 @@ func (server *Server) changeSettings(w http.ResponseWriter, r *http.Request) {
 	res["message"] = "success"
 	res["data"] = curr
 	response.JSON(w, http.StatusOK, res)
+}
+
+func (server *Server) getSettings(w http.ResponseWriter, r *http.Request) {
+
+	s := admin.Settings{}
+
+	setting, err := s.GetSettings(server.DB)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, errors.New("error getting settings"))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, setting)
 }
 
 // check this
