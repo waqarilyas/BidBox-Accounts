@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -245,18 +246,22 @@ func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	st := models.Position{}
-	sts, err := st.GetClosedPositions(server.DB, email, service)
-	if err != nil {
-		response.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
+	// st := models.Position{}
+	// sts, err := st.GetClosedPositions(server.DB, email, service)
+	// if err != nil {
+	// 	response.ERROR(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
 
-	if len(*sts) == 0 {
-		res := make(map[string]string)
-		res["msg"] = "record not found"
-		response.JSON(w, http.StatusOK, res)
-		return
-	}
-	response.JSON(w, http.StatusOK, sts)
+	res, _ := models.GetOrdersWithPositionDetails(server.DB, email, "bitget")
+	fmt.Println("🚀 ~ file: users_controller.go:256 ~ func ~ res:", res)
+
+	// if len(*sts) == 0 {
+	// 	res := make(map[string]string)
+	// 	res["msg"] = "record not found"
+	// 	response.JSON(w, http.StatusOK, res)
+	// 	return
+	// }
+
+	response.JSON(w, http.StatusOK, res)
 }
