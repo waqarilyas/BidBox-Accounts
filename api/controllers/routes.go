@@ -49,6 +49,9 @@ func (r *Server) initializeRoutes() {
 
 	// admin settings
 	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
+	s.HandleFunc("/changeSettings", middleware.MiddlewareJSON(r.changeSettings)).Methods("POST")
+	s.HandleFunc("/getSettings", middleware.MiddlewareJSON(r.getSettings)).Methods("GET")
+
 	s.HandleFunc("/getTimeframe", middleware.MiddlewareJSON(r.GetTimeframe)).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
 	// s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
