@@ -351,8 +351,8 @@ func (st *Statements) GetStatementsAllTime(db *gorm.DB, email string, service st
 // }
 
 type Result struct {
-	Symbol string
-	Profit float64
+	Symbol string  `json:"symbol"`
+	Profit float64 `json:"profit"`
 }
 
 func (st *Statements) GetCoinwiseToday(db *gorm.DB, email string, service string) (*[]Result, error) {
