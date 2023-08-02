@@ -34,6 +34,7 @@ type Position struct {
 	Fee             float64   `json:"fee"`
 	TotalMargin     float64   `json:"total_margin"`
 	TotalSize       float64   `json:"total_size"`
+	AvgClosePrice   float64   `json:"avg_close_price"`
 }
 
 type GroupedPosition struct {
