@@ -10,6 +10,14 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
+// swagger:operation GET /product Product getList
+// Get Product List
+//
+// ---
+// responses:
+//
+//  401: CommonError
+//  200: CommonSuccess
 func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)

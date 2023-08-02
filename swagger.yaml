@@ -1,0 +1,91 @@
+basePath: /accounts
+consumes:
+    - application/json
+definitions:
+    Key:
+        properties:
+            api_key:
+                description: |-
+                    Api Key
+                    in: string
+                type: string
+                x-go-name: ApiKey
+            compound:
+                description: |-
+                    Auto Compound
+                    in: string
+                type: boolean
+                x-go-name: Compound
+            key_id:
+                description: |-
+                    ID of Key
+                    in: uuid
+                format: uuid
+                type: string
+                x-go-name: Keyid
+            mode:
+                description: |-
+                    Mode
+                    in: string
+                type: string
+                x-go-name: Mode
+            passphrase:
+                description: |-
+                    Passphrase
+                    in: string
+                type: string
+                x-go-name: Passphrase
+            secret:
+                description: |-
+                    Secret Key
+                    in: string
+                type: string
+                x-go-name: SecretKey
+            service:
+                description: |-
+                    Exchange of key
+                    in: string
+                type: string
+                x-go-name: Service
+            start:
+                description: |-
+                    Enable Key
+                    in: bool
+                type: boolean
+                x-go-name: Start
+            strategy:
+                description: |-
+                    Strategy
+                    in: string
+                type: string
+                x-go-name: Strategy
+            trade_amount:
+                description: |-
+                    Trade Amount
+                    in: int
+                format: int64
+                type: integer
+                x-go-name: TradeAmount
+            user_email:
+                description: |-
+                    User Email
+                    in: string
+                type: string
+                x-go-name: UserEmail
+        type: object
+        x-go-package: github.com/kryptomind/bidboxapi/AccountsService/api/models
+info:
+    description: Documentation for BidBox Accounts API
+    version: 1.0.0
+paths:
+    /product:
+        get:
+            description: Get Product List
+            operationId: getList
+            tags:
+                - Product
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"

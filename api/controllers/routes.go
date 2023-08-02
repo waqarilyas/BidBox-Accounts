@@ -1,13 +1,29 @@
 package controllers
 
 import (
+	"net/http"
+
+	swag "github.com/go-openapi/runtime/middleware"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/middleware"
 )
 
 func (r *Server) initializeRoutes() {
-	s := r.Router.PathPrefix("/accounts").Subrouter()
 
-	s.HandleFunc("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
+	r.Router.Handle("/", middleware.MiddlewareJSON(r.Home)).Methods("GET")
+
+	r.Router.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+
+	// documentation for developers
+	opts := swag.SwaggerUIOpts{SpecURL: "swagger.yaml"}
+	sh := swag.SwaggerUI(opts, nil)
+	r.Router.Handle("/docs", sh)
+
+	// documentation for share
+	// opts1 := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	// sh1 := middleware.Redoc(opts1, nil)
+	// r.Handle("/docs", sh1)
+
+	s := r.Router.PathPrefix("/accounts").Subrouter()
 
 	//accounts routes
 	s.HandleFunc("/user", middleware.ValidateEmail(r.GetUserBalanceByExchange)).Methods("GET")

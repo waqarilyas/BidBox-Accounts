@@ -7,18 +7,41 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// swagger:model Key
 type Key struct {
-	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
-	Service     string    `gorm:"size:255;not null" json:"service"`
-	ApiKey      string    `gorm:"not null;unique" json:"api_key"`
-	SecretKey   string    `gorm:"not null;unique" json:"secret"`
-	Passphrase  string    `gorm:"" json:"passphrase"`
-	UserEmail   string    `json:"user_email"`
-	Strategy    string    `json:"strategy"`
-	Mode        string    `json:"mode"`
-	Compound    bool      `json:"compound"`
-	TradeAmount int       `json:"trade_amount"`
-	Start       bool      `json:"start"`
+	// ID of Key
+	// in: uuid
+	Keyid uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
+	// Exchange of key
+	// in: string
+	Service string `gorm:"size:255;not null" json:"service"`
+	// Api Key
+	// in: string
+	ApiKey string `gorm:"not null;unique" json:"api_key"`
+	// Secret Key
+	// in: string
+	SecretKey string `gorm:"not null;unique" json:"secret"`
+	// Passphrase
+	// in: string
+	Passphrase string `gorm:"" json:"passphrase"`
+	// User Email
+	// in: string
+	UserEmail string `json:"user_email"`
+	// Strategy
+	// in: string
+	Strategy string `json:"strategy"`
+	// Mode
+	// in: string
+	Mode string `json:"mode"`
+	// Auto Compound
+	// in: string
+	Compound bool `json:"compound"`
+	// Trade Amount
+	// in: int
+	TradeAmount int `json:"trade_amount"`
+	// Enable Key
+	// in: bool
+	Start bool `json:"start"`
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {
