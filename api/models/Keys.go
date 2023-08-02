@@ -10,37 +10,37 @@ import (
 // swagger:model Key
 type Key struct {
 	// ID of Key
-	// in: uuid
+	// example: 9283939ede-829kskiisii2-kdeoidekeo2-ieodke9ese
 	Keyid uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
 	// Exchange of key
-	// in: string
+	// example: bitget
 	Service string `gorm:"size:255;not null" json:"service"`
 	// Api Key
-	// in: string
+	// example: 829sksh8jws9020wp
 	ApiKey string `gorm:"not null;unique" json:"api_key"`
 	// Secret Key
-	// in: string
+	// example: 7276shsjj299skwks93ls
 	SecretKey string `gorm:"not null;unique" json:"secret"`
 	// Passphrase
-	// in: string
+	// example: thisisapassphrase
 	Passphrase string `gorm:"" json:"passphrase"`
 	// User Email
-	// in: string
+	// example: abc@gmail.com
 	UserEmail string `json:"user_email"`
 	// Strategy
-	// in: string
+	// example: cycle
 	Strategy string `json:"strategy"`
 	// Mode
-	// in: string
+	// example: conservative
 	Mode string `json:"mode"`
 	// Auto Compound
-	// in: string
+	// example: true
 	Compound bool `json:"compound"`
 	// Trade Amount
-	// in: int
+	// example: 200
 	TradeAmount int `json:"trade_amount"`
 	// Enable Key
-	// in: bool
+	// example: true
 	Start bool `json:"start"`
 }
 

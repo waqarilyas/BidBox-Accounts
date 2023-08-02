@@ -5,71 +5,60 @@ definitions:
     Key:
         properties:
             api_key:
-                description: |-
-                    Api Key
-                    in: string
+                description: Api Key
+                example: 829sksh8jws9020wp
                 type: string
                 x-go-name: ApiKey
             compound:
-                description: |-
-                    Auto Compound
-                    in: string
+                description: Auto Compound
+                example: true
                 type: boolean
                 x-go-name: Compound
             key_id:
-                description: |-
-                    ID of Key
-                    in: uuid
+                description: ID of Key
+                example: 9283939ede-829kskiisii2-kdeoidekeo2-ieodke9ese
                 format: uuid
                 type: string
                 x-go-name: Keyid
             mode:
-                description: |-
-                    Mode
-                    in: string
+                description: Mode
+                example: conservative
                 type: string
                 x-go-name: Mode
             passphrase:
-                description: |-
-                    Passphrase
-                    in: string
+                description: Passphrase
+                example: thisisapassphrase
                 type: string
                 x-go-name: Passphrase
             secret:
-                description: |-
-                    Secret Key
-                    in: string
+                description: Secret Key
+                example: 7276shsjj299skwks93ls
                 type: string
                 x-go-name: SecretKey
             service:
-                description: |-
-                    Exchange of key
-                    in: string
+                description: Exchange of key
+                example: bitget
                 type: string
                 x-go-name: Service
             start:
-                description: |-
-                    Enable Key
-                    in: bool
+                description: Enable Key
+                example: true
                 type: boolean
                 x-go-name: Start
             strategy:
-                description: |-
-                    Strategy
-                    in: string
+                description: Strategy
+                example: cycle
                 type: string
                 x-go-name: Strategy
             trade_amount:
-                description: |-
-                    Trade Amount
-                    in: int
+                description: Trade Amount
+                example: 200
                 format: int64
                 type: integer
                 x-go-name: TradeAmount
             user_email:
-                description: |-
-                    User Email
-                    in: string
+                description: User Email
+                example: abc@gmail.com
                 type: string
                 x-go-name: UserEmail
         type: object
@@ -77,13 +66,7 @@ definitions:
 info:
     description: Documentation for BidBox Accounts API
     version: 1.0.0
-paths:
-    /product:
-        get:
-            description: Get Product List
-            operationId: getList
-            tags:
-                - Product
+paths: {}
 produces:
     - application/json
 schemes:
