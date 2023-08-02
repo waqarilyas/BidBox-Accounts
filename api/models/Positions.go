@@ -32,6 +32,8 @@ type Position struct {
 	FirstBuyAmount  string    `json:"first_buy_amount"`
 	HedgeId         string    `json:"hedge_id"`
 	Fee             float64   `json:"fee"`
+	TotalMargin     float64   `json:"total_margin"`
+	TotalSize       float64   `json:"total_size"`
 }
 
 type GroupedPosition struct {
