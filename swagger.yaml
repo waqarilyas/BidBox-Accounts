@@ -2,6 +2,44 @@ basePath: /accounts
 consumes:
     - application/json
 definitions:
+    ExchangeModel:
+        description: An ExchangeModel is gives information about the connected exchanges
+        properties:
+            connected:
+                example: true
+                type: boolean
+                x-go-name: Connected
+            id:
+                example: 23
+                format: int64
+                type: integer
+                x-go-name: Id
+            image_src:
+                example: bybit
+                type: string
+                x-go-name: ImageSrc
+            is_active:
+                example: true
+                type: boolean
+                x-go-name: IsActive
+            name:
+                example: bybit
+                type: string
+                x-go-name: Name
+            short:
+                example: bybit
+                type: string
+                x-go-name: Short
+        type: object
+        x-go-package: github.com/kryptomind/bidboxapi/AccountsService/api/controllers
+    ExchangeRes:
+        properties:
+            body:
+                $ref: '#/definitions/ExchangeModel'
+        required:
+            - body
+        type: object
+        x-go-package: github.com/kryptomind/bidboxapi/AccountsService/api/controllers
     Key:
         properties:
             api_key:
@@ -66,7 +104,40 @@ definitions:
 info:
     description: Documentation for BidBox Accounts API
     version: 1.0.0
-paths: {}
+paths:
+    /connected:
+        get:
+            consumes:
+                - application/json
+            description: |-
+                This will show all available pets by default.
+                You can get the pets that are out of stock
+            operationId: listPets
+            parameters:
+                - description: user email
+                  in: query
+                  name: email
+                  required: true
+                  type: string
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: ExchangeRes
+                    schema:
+                        $ref: '#/definitions/ExchangeRes'
+                "404":
+                    $ref: '#/responses/connected'
+                    description: account not found
+                default:
+                    $ref: '#/responses/genericError'
+            schemes:
+                - http
+                - https
+            summary: Get Connected exchanges for a user.
+            tags:
+                - pets
+                - users
 produces:
     - application/json
 schemes:

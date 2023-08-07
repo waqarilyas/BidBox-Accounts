@@ -16,15 +16,62 @@ func (server *Server) Home(w http.ResponseWriter, r *http.Request) {
 type UserConnectedAccountsRequest struct {
 	Email string `json:"email"`
 }
-type ExchangeResponse struct {
-	Name      string `json:"name"`
-	Short     string `json:"short"`
-	ImageSrc  string `json:"image_src"`
-	Id        int    `json:"id"`
-	Connected bool   `json:"connected"`
-	IsActive  bool   `json:"is_active"`
+
+// An ExchangeModel is gives information about the connected exchanges
+// swagger:model ExchangeModel
+type ExchangeModel struct {
+	// Example: bybit
+	Name string `json:"name"`
+	// Example: bybit
+	Short string `json:"short"`
+	// Example: bybit
+	ImageSrc string `json:"image_src"`
+	// Example: 23
+	Id int `json:"id"`
+	// Example: true
+	Connected bool `json:"connected"`
+	// Example: true
+	IsActive bool `json:"is_active"`
 }
 
+// swagger:model ExchangeRes
+type ExchangeRes struct {
+	// - name: body
+	//  in: body
+	//  description: name and status
+	//  schema:
+	//  type: object
+	//     "$ref": "#/definitions/ExchangeModel"
+	//  required: true
+	Body ExchangeModel `json:"body"`
+}
+
+// swagger:route GET /connected pets users listPets
+//
+// Get Connected exchanges for a user.
+//
+// This will show all available pets by default.
+// You can get the pets that are out of stock
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//     Schemes: http, https
+//
+//     Parameters:
+//       + name: email
+//         in: query
+//         description: user email
+//         required: true
+//         type: string
+//
+//     Responses:
+//       default: genericError
+//       200: ExchangeRes
+//       404: connected account not found
 func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get all exchanges
@@ -32,14 +79,14 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 	exchanges, err := exchange.FindAllExchanges(server.DB)
 	if err != nil {
 		// if there are no connected accounts, return a default response
-		response.ERROR(w, http.StatusBadRequest, errors.New("no exchanges Found"))
+		response.ERROR(w, http.StatusNotFound, errors.New("no exchanges Found"))
 		return
 	}
 
-	exchangeResponses := make([]ExchangeResponse, len(*exchanges))
+	exchangeResponses := make([]ExchangeModel, len(*exchanges))
 
 	for i, e := range *exchanges {
-		exchangeResponses[i] = ExchangeResponse{
+		exchangeResponses[i] = ExchangeModel{
 			Name:      e.Name,
 			Short:     e.Short,
 			ImageSrc:  e.ImageSrc,
