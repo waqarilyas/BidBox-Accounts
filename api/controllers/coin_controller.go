@@ -10,6 +10,10 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
+type CoinGetRes struct {
+	Body admin.CoinPair `json:"body"`
+}
+
 func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)

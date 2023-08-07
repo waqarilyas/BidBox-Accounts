@@ -101,43 +101,11 @@ definitions:
                 x-go-name: UserEmail
         type: object
         x-go-package: github.com/kryptomind/bidboxapi/AccountsService/api/models
+host: localhost:8080
 info:
     description: Documentation for BidBox Accounts API
     version: 1.0.0
-paths:
-    /connected:
-        get:
-            consumes:
-                - application/json
-            description: |-
-                This will show all available pets by default.
-                You can get the pets that are out of stock
-            operationId: listPets
-            parameters:
-                - description: user email
-                  in: query
-                  name: email
-                  required: true
-                  type: string
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: ExchangeRes
-                    schema:
-                        $ref: '#/definitions/ExchangeRes'
-                "404":
-                    $ref: '#/responses/connected'
-                    description: account not found
-                default:
-                    $ref: '#/responses/genericError'
-            schemes:
-                - http
-                - https
-            summary: Get Connected exchanges for a user.
-            tags:
-                - pets
-                - users
+paths: {}
 produces:
     - application/json
 schemes:

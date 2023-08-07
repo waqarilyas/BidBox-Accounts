@@ -27,6 +27,9 @@ func (r *Server) initializeRoutes() {
 
 	//accounts routes
 
+	//auth
+	s.HandleFunc("/generate-token", middleware.MiddlewareJSON(r.GenerateJWT)).Methods("POST")
+
 	// s.HandleFunc("/user", middleware.ValidateEmail(r.GetUserBalanceByExchange)).Methods("GET")
 	s.HandleFunc("/connected", middleware.ValidateEmail(r.GetUserConnectedAccounts)).Methods("GET")
 	s.HandleFunc("/exchange-keys", middleware.ValidateEmail(r.GetUserExchangeKeys)).Methods("GET")
@@ -45,15 +48,15 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/leaderboard", middleware.MiddlewareJSON(r.GetLeaderBoardv2)).Methods("GET")
 
 	//coins
-	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.GetCoins)).Methods("GET")
-	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.CreateCoin)).Methods("POST")
-	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.UpdateCoin)).Methods("PUT")
-	s.HandleFunc("/admin/coins", middleware.MiddlewareJSON(r.DeleteCoin)).Methods("DELETE")
-	s.HandleFunc("/admin/stats", middleware.MiddlewareJSON(r.GetNoOfUsers)).Methods("GET")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.GetCoins))).Methods("GET")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.CreateCoin))).Methods("POST")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.UpdateCoin))).Methods("PUT")
+	s.HandleFunc("/admin/coins", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.DeleteCoin))).Methods("DELETE")
+	s.HandleFunc("/admin/stats", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.GetNoOfUsers))).Methods("GET")
 
 	//settings
-	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.GetConditions)).Methods("GET")
-	s.HandleFunc("/admin/conditions", middleware.MiddlewareJSON(r.UpdateConditions)).Methods("PUT")
+	s.HandleFunc("/admin/conditions", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.GetConditions))).Methods("GET")
+	s.HandleFunc("/admin/conditions", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.UpdateConditions))).Methods("PUT")
 
 	// 2FA
 	s.HandleFunc("/register", middleware.MiddlewareJSON(r.SignUpUser)).Methods("POST")
@@ -61,15 +64,15 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/otp/enable", middleware.MiddlewareJSON(r.EnableOTP)).Methods("POST")
 	s.HandleFunc("/otp/generate", middleware.MiddlewareJSON(r.GenerateOTP)).Methods("POST")
 	s.HandleFunc("/otp/validate", middleware.MiddlewareJSON(r.ValidateOTP)).Methods("POST")
-	s.HandleFunc("/otp/verify", middleware.MiddlewareJSON(r.VerifyOTP)).Methods("POST")
+	s.HandleFunc("/otp/verify", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.VerifyOTP))).Methods("POST")
 	s.HandleFunc("/changePassword", middleware.MiddlewareJSON(r.ChangePassword)).Methods("POST")
 
 	// admin settings
-	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
-	s.HandleFunc("/changeSettings", middleware.MiddlewareJSON(r.changeSettings)).Methods("POST")
-	s.HandleFunc("/getSettings", middleware.MiddlewareJSON(r.getSettings)).Methods("GET")
+	s.HandleFunc("/changeTimeframe", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.changeTimeframe))).Methods("POST")
+	s.HandleFunc("/changeSettings", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.changeSettings))).Methods("POST")
+	s.HandleFunc("/getSettings", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.getSettings))).Methods("GET")
 
-	s.HandleFunc("/getTimeframe", middleware.MiddlewareJSON(r.GetTimeframe)).Methods("GET")
+	s.HandleFunc("/getTimeframe", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.GetTimeframe))).Methods("GET")
 	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
 	// s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
 

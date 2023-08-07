@@ -1,6 +1,7 @@
 // Documentation for BidBox Accounts API
 //
 //  Schemes: http
+//  Host: localhost:8080
 //  BasePath: /accounts
 //  Version: 1.0.0
 //

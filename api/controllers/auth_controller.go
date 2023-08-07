@@ -16,6 +16,39 @@ import (
 	// "github.com/dgrijalva/jwt-go"
 )
 
+type UserBody struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+var (
+	user = "ahmed023"
+	pass = "monke"
+)
+
+func (s *Server) GenerateJWT(w http.ResponseWriter, r *http.Request) {
+	userbody := UserBody{}
+	if err := json.NewDecoder(r.Body).Decode(&userbody); err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+	if userbody.Username != user || userbody.Password != pass {
+		response.ERROR(w, http.StatusBadRequest, errors.New("username or password incorrect"))
+		return
+	}
+
+	token, err := auth.CreateToken(userbody.Username + userbody.Password)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	res := make(map[string]interface{}, 0)
+	res["token"] = token
+
+	response.JSON(w, http.StatusOK, res)
+}
+
 func (s *Server) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.RegisterUserInput
 

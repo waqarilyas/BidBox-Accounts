@@ -12,7 +12,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(user_id string) (string, error) {
+func CreateToken(user_id interface{}) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = user_id
 	claims["authorized"] = true
@@ -100,7 +100,7 @@ func ValidateToken(tokenString string) bool {
 }
 
 func ExtractID(tokenString string) (string, error) {
-	
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

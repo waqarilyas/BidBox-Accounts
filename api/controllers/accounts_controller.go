@@ -46,12 +46,9 @@ type ExchangeRes struct {
 	Body ExchangeModel `json:"body"`
 }
 
-// swagger:route GET /connected pets users listPets
+// swagger:route GET /connected
 //
 // Get Connected exchanges for a user.
-//
-// This will show all available pets by default.
-// You can get the pets that are out of stock
 //
 //     Consumes:
 //     - application/json
