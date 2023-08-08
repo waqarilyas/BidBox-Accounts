@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"sort"
 	"time"
 
@@ -396,4 +397,42 @@ func (st *Statements) GetCoinwiseAllTime(db *gorm.DB, email string, service stri
 	}
 
 	return &ords, nil
+}
+
+func SumStatementByEmailAndService(db *gorm.DB, email string, service string) (float64, int, error) {
+	var sumProfit sql.NullFloat64
+	var count int
+
+	err := db.
+		Table("statements").
+		Where("user_email = ? AND exchange = ? AND profit_usd > 0", email, service).
+		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit, COUNT(*)").
+		Row().
+		Scan(&sumProfit, &count)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return sumProfit.Float64, count, nil
+}
+
+func SumAndCountStatementForToday(db *gorm.DB, email string, service string) (float64, int, error) {
+	var sumProfit sql.NullFloat64
+	var count int
+
+	today := time.Now().UTC().Format("2006-01-02")
+
+	err := db.
+		Table("statements").
+		Where("DATE(created_time) = ? AND profit_usd > 0 AND user_email = ? AND exchange = ?", today, email, service).
+		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit, COUNT(*)").
+		Row().
+		Scan(&sumProfit, &count)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return sumProfit.Float64, count, nil
 }

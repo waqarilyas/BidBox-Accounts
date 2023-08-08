@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 
@@ -175,4 +176,42 @@ func GetOrdersWithPositionDetails(db *gorm.DB, email string, exchange string) ([
 	}
 
 	return ordersWithPosition, nil
+}
+
+func SumProfitByEmailAndService(db *gorm.DB, email string, service string) (float64, int, error) {
+	var sumProfit sql.NullFloat64
+	var count int
+
+	err := db.
+		Table("orders").
+		Where("email = ? AND service = ? AND profit > 0", email, service).
+		Select("COALESCE(SUM(profit), 0) AS sum_profit, COUNT(*)").
+		Row().
+		Scan(&sumProfit, &count)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return sumProfit.Float64, count, nil
+}
+
+func SumAndCountProfitForToday(db *gorm.DB, email string, service string) (float64, int, error) {
+	var sumProfit sql.NullFloat64
+	var count int
+
+	today := time.Now().UTC().Format("2006-01-02")
+
+	err := db.
+		Table("orders").
+		Where("DATE(created_at) = ? AND profit > 0 AND email = ? AND service = ?", today, email, service).
+		Select("COALESCE(SUM(profit), 0) AS sum_profit, COUNT(*)").
+		Row().
+		Scan(&sumProfit, &count)
+
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return sumProfit.Float64, count, nil
 }
