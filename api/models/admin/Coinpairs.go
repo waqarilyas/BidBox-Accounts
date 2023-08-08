@@ -3,10 +3,10 @@ package admin
 import "github.com/jinzhu/gorm"
 
 type CoinPair struct {
-	Id       int    `json:"id"`
-	Coin     string `json:"coin"`
-	Active   bool
-	Leverage int
+	Id       int    `json:"id" example:"25"`
+	Coin     string `json:"coin" example:"FTMUSDT"`
+	Active   bool   `example:"true"`
+	Leverage int    `example:"80"`
 }
 
 func (c *CoinPair) Validate(prev *CoinPair) {

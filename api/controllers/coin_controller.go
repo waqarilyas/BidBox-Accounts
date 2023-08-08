@@ -10,10 +10,17 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
-type CoinGetRes struct {
-	Body admin.CoinPair `json:"body"`
-}
-
+// Save Coin godoc
+// @Summary      Save Coin
+// @Description  save coin
+// @Tags         coins
+// @Accept       json
+// @Produce      json
+// @Param        coin  body  string   true  "coin pair"
+// @Success      200  {object}  admin.CoinPair
+// @Failure      422  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/coins [post]
 func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -42,21 +49,19 @@ func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, coinCreated)
 }
 
+// GetCoins godoc
+// @Summary      Get All Coins
+// @Description  get coins
+// @Tags         coins
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  []admin.CoinPair
+// @Failure      500  {string}  server error
+// @Router       /admin/coins [get]
 func (server *Server) GetCoins(w http.ResponseWriter, r *http.Request) {
-
-	//	uid := r.URL.Query().Get("id")
 
 	coin := admin.CoinPair{}
 
-	// tokenID, err := auth.ExtractTokenID(r)
-	// if err != nil {
-	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
-	// 	return
-	// }
-	// if tokenID != uid {
-	// 	response.ERROR(w, http.StatusUnauthorized, errors.New("unauthorized"))
-	// 	return
-	// }
 	coins, err := coin.GetAllCoins(server.DB)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
@@ -65,6 +70,17 @@ func (server *Server) GetCoins(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, coins)
 }
 
+// Update Coin godoc
+// @Summary      Update Coin
+// @Description  update coin
+// @Tags         coins
+// @Accept       json
+// @Produce      json
+// @Param        coin  body  admin.CoinPair  false  "coin pair"
+// @Success      200  {object}  admin.CoinPair
+// @Failure      422  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/coins [put]
 func (server *Server) UpdateCoin(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -99,6 +115,17 @@ func (server *Server) UpdateCoin(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, updatedcoin)
 }
 
+// Delete Coin godoc
+// @Summary      Delete Coin
+// @Description  delete coin
+// @Tags         coins
+// @Accept       json
+// @Produce      json
+// @Param        coin  query  string true "coin pair"
+// @Success      200  {string}  deleted row
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/coins [delete]
 func (server *Server) DeleteCoin(w http.ResponseWriter, r *http.Request) {
 
 	del := r.URL.Query().Get("coin")

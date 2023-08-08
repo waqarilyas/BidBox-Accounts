@@ -1,0 +1,138 @@
+basePath: /accounts
+definitions:
+  admin.CoinPair:
+    properties:
+      active:
+        example: true
+        type: boolean
+      coin:
+        example: FTMUSDT
+        type: string
+      id:
+        example: 25
+        type: integer
+      leverage:
+        example: 80
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is BidBox Accounts Service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: BidBox Accounts Service API
+  version: "1.0"
+paths:
+  /admin/coins:
+    delete:
+      consumes:
+      - application/json
+      description: delete coin
+      parameters:
+      - description: coin pair
+        in: query
+        name: coin
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete Coin
+      tags:
+      - coins
+    get:
+      consumes:
+      - application/json
+      description: get coins
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.CoinPair'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get All Coins
+      tags:
+      - coins
+    post:
+      consumes:
+      - application/json
+      description: save coin
+      parameters:
+      - description: coin pair
+        in: body
+        name: coin
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.CoinPair'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Save Coin
+      tags:
+      - coins
+    put:
+      consumes:
+      - application/json
+      description: update coin
+      parameters:
+      - description: coin pair
+        in: body
+        name: coin
+        schema:
+          $ref: '#/definitions/admin.CoinPair'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.CoinPair'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update Coin
+      tags:
+      - coins
+swagger: "2.0"

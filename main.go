@@ -8,9 +8,7 @@ import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/joho/godotenv"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/controllers"
-
 	// BitgetWebSockets "github.com/kryptomind/bidboxapi/AccountsService/api/websockets"
-	_ "github.com/kryptomind/bidboxapi/AccountsService/docs"
 )
 
 var server = controllers.Server{}
@@ -39,6 +37,21 @@ func Run() {
 
 	server.Run(":8080")
 }
+
+//	@title			BidBox Accounts Service API
+//	@version		1.0
+//	@description	This is BidBox Accounts Service.
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@host		localhost:8080
+//	@BasePath	/accounts
 
 func main() {
 	Run()

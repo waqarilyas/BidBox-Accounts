@@ -15,11 +15,11 @@ type Settings struct {
 }
 
 type Conditions struct {
-	Capital    int `json:"capital"`
-	Positions  int `json:"positions"`
-	StopLoss   int `json:"stop_loss"`
-	TakeProfit int `json:"take_profit"`
-	Leverage   int `json:"leverage"`
+	Capital    int `json:"capital" example:"300"`
+	Positions  int `json:"positions" example:"2"`
+	StopLoss   int `json:"stop_loss" example:"80"`
+	TakeProfit int `json:"take_profit" example:"2"`
+	Leverage   int `json:"leverage" example:"80"`
 }
 
 func (c *Conditions) Validate(prev *Conditions) {

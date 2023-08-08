@@ -17,8 +17,8 @@ import (
 )
 
 type UserBody struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" example:"admin"`
+	Password string `json:"password" example:"123"`
 }
 
 var (
@@ -26,6 +26,17 @@ var (
 	pass = "monke"
 )
 
+// Generate JWT Token godoc
+// @Summary      Generate JWT Token
+// @Description  generate token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  UserBody  true  "user body"
+// @Success      200  {object}  admin.CoinPair
+// @Failure      422  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/coins [post]
 func (s *Server) GenerateJWT(w http.ResponseWriter, r *http.Request) {
 	userbody := UserBody{}
 	if err := json.NewDecoder(r.Body).Decode(&userbody); err != nil {
