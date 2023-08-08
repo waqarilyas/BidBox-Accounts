@@ -8,17 +8,18 @@ import (
 )
 
 type Key struct {
-	Keyid       uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
-	Service     string    `gorm:"size:255;not null" json:"service"`
-	ApiKey      string    `gorm:"not null;unique" json:"api_key"`
-	SecretKey   string    `gorm:"not null;unique" json:"secret"`
-	Passphrase  string    `gorm:"" json:"passphrase"`
-	UserEmail   string    `json:"user_email"`
-	Strategy    string    `json:"strategy"`
-	Mode        string    `json:"mode"`
-	Compound    bool      `json:"compound"`
-	TradeAmount int       `json:"trade_amount"`
-	Start       bool      `json:"start"`
+	Keyid           uuid.UUID `gorm:"primary_key;type:uuid;default:gen_random_uuid()" json:"key_id"`
+	Service         string    `gorm:"size:255;not null" json:"service"`
+	ApiKey          string    `gorm:"not null;unique" json:"api_key"`
+	SecretKey       string    `gorm:"not null;unique" json:"secret"`
+	Passphrase      string    `gorm:"" json:"passphrase"`
+	UserEmail       string    `json:"user_email"`
+	Strategy        string    `json:"strategy"`
+	Mode            string    `json:"mode"`
+	Compound        bool      `json:"compound"`
+	TradeAmount     int       `json:"trade_amount"`
+	Start           bool      `json:"start"`
+	CapitalPerTrade float64   `json:"capital_per_trade"`
 }
 
 func (u *Key) FindAllKeys(db *gorm.DB) (*[]Key, error) {
@@ -110,9 +111,12 @@ func (u *Key) FindKeyByUserEmailAndShort(db *gorm.DB, email string, service stri
 var strategy = []string{"cycle", "single", "stop_make", "stop_long", "stop_short"}
 var modes = []string{"conservative", "aggressive"}
 
+var mode_updated = false
+
 func (k *Key) Validate(prev *Key) error {
 	st := false
 	md := false
+	k.CapitalPerTrade = prev.CapitalPerTrade
 	if k.Strategy == "" {
 		k.Strategy = prev.Strategy
 	}
@@ -127,6 +131,9 @@ func (k *Key) Validate(prev *Key) error {
 	}
 	for _, v := range modes {
 		if v == k.Mode {
+			if k.Mode != prev.Mode {
+				mode_updated = true
+			}
 			md = true
 			break
 		}
@@ -138,6 +145,14 @@ func (k *Key) Validate(prev *Key) error {
 		}
 	}
 	if st && md {
+		if mode_updated {
+			if k.Mode == "aggressive" {
+				k.CapitalPerTrade *= 2
+			} else {
+				k.CapitalPerTrade /= 2
+			}
+		}
+		mode_updated = false
 		return nil
 	}
 	return errors.New("strategy or mode is incorrect")
@@ -148,10 +163,11 @@ func (k *Key) UpdateKeySettings(db *gorm.DB, email string, service string) (*Key
 	db = db.Debug().Model(&Key{}).Where("user_email = ? AND service = ?", email, service).Take(&updated_key).
 		UpdateColumns(
 			map[string]interface{}{
-				"strategy": k.Strategy,
-				"mode":     k.Mode,
-				"compound": k.Compound,
-				"start":    k.Start,
+				"strategy":          k.Strategy,
+				"mode":              k.Mode,
+				"compound":          k.Compound,
+				"start":             k.Start,
+				"capital_per_trade": k.CapitalPerTrade,
 			},
 		)
 	if db.Error != nil {
