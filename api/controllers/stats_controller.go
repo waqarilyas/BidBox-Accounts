@@ -63,21 +63,21 @@ func (s *Server) GetAccountStats(w http.ResponseWriter, r *http.Request, email s
 		return
 	}
 
-	overallTodayProfit, err := models.CalculateTotalProfitForToday(s.DB, service)
+	overallTodayProfit, err := models.CalculateTotalProfitForToday(s.DB)
 	if err != nil {
 		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
 		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
 		return
 	}
 
-	overallWeekProfit, err := models.CalculateTotalProfitForCurrentWeek(s.DB, service)
+	overallWeekProfit, err := models.CalculateTotalProfitForCurrentWeek(s.DB)
 	if err != nil {
 		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
 		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
 		return
 	}
 
-	overallMonthlyProfit, err := models.CalculateTotalProfitForCurrentMonth(s.DB, service)
+	overallMonthlyProfit, err := models.CalculateTotalProfitForCurrentMonth(s.DB)
 	if err != nil {
 		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
 		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
