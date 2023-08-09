@@ -405,8 +405,8 @@ func SumStatementByEmailAndService(db *gorm.DB, email string, service string) (f
 
 	err := db.
 		Table("statements").
-		Where("user_email = ? AND exchange = ? AND profit_usd > 0", email, service).
-		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit, COUNT(*)").
+		Where("user_email = ? AND exchange = ? AND closed_pnl > 0", email, service).
+		Select("COALESCE(SUM(closed_pnl), 0) AS sum_profit, COUNT(*)").
 		Row().
 		Scan(&sumProfit, &count)
 
@@ -425,8 +425,8 @@ func SumAndCountStatementForToday(db *gorm.DB, email string, service string) (fl
 
 	err := db.
 		Table("statements").
-		Where("DATE(created_time) = ? AND profit_usd > 0 AND user_email = ? AND exchange = ?", today, email, service).
-		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit, COUNT(*)").
+		Where("DATE(created_time) = ? AND closed_pnl > 0 AND user_email = ? AND exchange = ?", today, email, service).
+		Select("COALESCE(SUM(closed_pnl), 0) AS sum_profit, COUNT(*)").
 		Row().
 		Scan(&sumProfit, &count)
 
@@ -442,8 +442,8 @@ func SumProfitForTimeRange(db *gorm.DB, startTime, endTime time.Time) (float64, 
 
 	err := db.
 		Table("statements").
-		Where("created_time BETWEEN ? AND ? AND profit_usd > 0 ", startTime, endTime).
-		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit").
+		Where("created_time BETWEEN ? AND ? AND closed_pnl > 0 ", startTime, endTime).
+		Select("COALESCE(SUM(closed_pnl), 0) AS sum_profit").
 		Row().
 		Scan(&sumProfit)
 
