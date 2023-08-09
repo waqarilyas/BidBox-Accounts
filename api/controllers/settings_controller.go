@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -211,18 +210,15 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		api := models.NewLeaderboardAPI(server.DB)
 		data, error := api.GetLeaderboardThisMonth()
 		if error != nil {
-			fmt.Println("------- error handling ------", error)
 			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
 			return
 		}
 		ords = data
-
 	} else if time == "day" {
 		api := models.NewLeaderboardAPI(server.DB)
 		data, error := api.GetLeaderboardToday()
 		if error != nil {
-
-			fmt.Println("------- error handling ------", error)
+			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
 		}
 		ords = data
 
@@ -231,7 +227,6 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		data, error := api.GetLeaderboardThisWeek()
 		if error != nil {
 			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
-			fmt.Println("------- error handling ------", error)
 			return
 		}
 		ords = data
@@ -240,7 +235,6 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		api := models.NewLeaderboardAPI(server.DB)
 		data, error := api.GetLeaderboardAllTime()
 		if error != nil {
-			fmt.Println("------- error handling ------", error)
 			response.ERROR(w, http.StatusBadRequest, errors.New("something went wrong"))
 			return
 		}

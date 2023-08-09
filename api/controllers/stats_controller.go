@@ -18,6 +18,10 @@ type StatsResponse struct {
 	StatementsProfitCount      int     `json:"statementsProfitCount"`
 	TodayStatementsProfit      float64 `json:"todayStatementsProfit"`
 	TodayStatementsProfitCount int     `json:"todayStatementsProfitCount"`
+
+	TotalTodayProfit   float64 `json:"totalTodayProfit"`
+	TotalWeekProfit    float64 `json:"totalWeekProfit"`
+	TotalMonthlyProfit float64 `json:"totalMonthlyProfit"`
 }
 
 func (s *Server) GetAccountStats(w http.ResponseWriter, r *http.Request, email string) {
@@ -59,6 +63,27 @@ func (s *Server) GetAccountStats(w http.ResponseWriter, r *http.Request, email s
 		return
 	}
 
+	overallTodayProfit, err := models.CalculateTotalProfitForToday(s.DB, service)
+	if err != nil {
+		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
+		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
+		return
+	}
+
+	overallWeekProfit, err := models.CalculateTotalProfitForCurrentWeek(s.DB, service)
+	if err != nil {
+		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
+		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
+		return
+	}
+
+	overallMonthlyProfit, err := models.CalculateTotalProfitForCurrentMonth(s.DB, service)
+	if err != nil {
+		fmt.Println("🚀 ~ file: stats_controller.go:40 ~ func ~ err:", err)
+		response.ERROR(w, http.StatusBadRequest, errors.New("unable to get stats at the moment"))
+		return
+	}
+
 	payload := StatsResponse{
 		OrdersProfit:               sumProfit,
 		OrdersProfitCount:          profitOrdersCount,
@@ -68,6 +93,10 @@ func (s *Server) GetAccountStats(w http.ResponseWriter, r *http.Request, email s
 		TodayStatementsProfitCount: todayTotalStatementsOrders,
 		StatementsProfit:           statementSum,
 		StatementsProfitCount:      totalProfitStatement,
+
+		TotalTodayProfit:   overallTodayProfit,
+		TotalWeekProfit:    overallWeekProfit,
+		TotalMonthlyProfit: overallMonthlyProfit,
 	}
 
 	response.JSON(w, http.StatusOK, payload)

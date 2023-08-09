@@ -93,7 +93,7 @@ func (api *LeaderboardAPI) calculateCumulativePnl(orders []Statements) float64 {
 		// 	fmt.Println("----error close dpnl float format ---", err)
 		// 	continue
 		// }
-		pnl += order.Size
+		pnl += order.ProfitUSD
 	}
 	return pnl
 }
@@ -435,4 +435,46 @@ func SumAndCountStatementForToday(db *gorm.DB, email string, service string) (fl
 	}
 
 	return sumProfit.Float64, count, nil
+}
+
+func SumProfitForTimeRange(db *gorm.DB, service string, startTime, endTime time.Time) (float64, error) {
+	var sumProfit sql.NullFloat64
+
+	err := db.
+		Table("statements").
+		Where("created_time BETWEEN ? AND ? AND profit_usd > 0 AND exchange = ?", startTime, endTime, service).
+		Select("COALESCE(SUM(profit_usd), 0) AS sum_profit").
+		Row().
+		Scan(&sumProfit)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return sumProfit.Float64, nil
+}
+
+func CalculateTotalProfitForToday(db *gorm.DB, service string) (float64, error) {
+	now := time.Now().UTC()
+	startTime := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endTime := startTime.Add(24 * time.Hour)
+
+	return SumProfitForTimeRange(db, service, startTime, endTime)
+}
+
+func CalculateTotalProfitForCurrentWeek(db *gorm.DB, service string) (float64, error) {
+	now := time.Now().UTC()
+	startTime := now.AddDate(0, 0, -int(now.Weekday()))
+	startTime = time.Date(startTime.Year(), startTime.Month(), startTime.Day(), 0, 0, 0, 0, time.UTC)
+	endTime := startTime.AddDate(0, 0, 7)
+
+	return SumProfitForTimeRange(db, service, startTime, endTime)
+}
+
+func CalculateTotalProfitForCurrentMonth(db *gorm.DB, service string) (float64, error) {
+	now := time.Now().UTC()
+	startTime := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endTime := startTime.AddDate(0, 1, 0)
+
+	return SumProfitForTimeRange(db, service, startTime, endTime)
 }
