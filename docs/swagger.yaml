@@ -417,7 +417,7 @@ definitions:
       user_name:
         type: string
     type: object
-host: localhost:8080
+host: stg-api-bidbox.kryptomind.net
 info:
   contact:
     email: support@swagger.io
@@ -446,6 +446,11 @@ paths:
       - description: user id
         in: query
         name: id
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -479,6 +484,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -504,6 +514,11 @@ paths:
         name: coin
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -526,6 +541,12 @@ paths:
       consumes:
       - application/json
       description: get coins
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -553,6 +574,11 @@ paths:
         required: true
         schema:
           type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -581,6 +607,11 @@ paths:
         name: coin
         schema:
           $ref: '#/definitions/admin.CoinPair'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -648,6 +679,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/admin.Conditions'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -833,11 +869,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/admin.RegisterUserInput'
-      - description: Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -888,6 +919,11 @@ paths:
       - description: user id
         in: query
         name: id
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
