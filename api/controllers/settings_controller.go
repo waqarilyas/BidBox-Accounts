@@ -26,6 +26,7 @@ type GetConditionRes struct {
 // @Produce      json
 // @Param        page  query  int   false  "page number"
 // @Param        limit  query  int   false  "limit"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object}  GetConditionRes
 // @Failure      500  {string}  server error
 // @Router       /admin/conditions [get]
@@ -67,11 +68,12 @@ func (server *Server) GetConditions(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        capital  query  int   true  "capital"
 // @Param        condition  body  admin.Conditions  true  "condition"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object}  admin.Conditions
 // @Failure      400  {string}  bad req
 // @Failure      422  {string}  bad req
 // @Failure      500  {string}  bad req
-// @Router       /admin/conditions [get]
+// @Router       /admin/conditions [put]
 func (server *Server) UpdateConditions(w http.ResponseWriter, r *http.Request) {
 
 	capital, err := strconv.Atoi(r.URL.Query().Get("capital"))

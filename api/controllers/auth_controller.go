@@ -36,7 +36,7 @@ var (
 // @Success      200  {object}  admin.CoinPair
 // @Failure      422  {string}  coin required
 // @Failure      500  {string}  server error
-// @Router       /admin/coins [post]
+// @Router       /generate-token [post]
 func (s *Server) GenerateJWT(w http.ResponseWriter, r *http.Request) {
 	userbody := UserBody{}
 	if err := json.NewDecoder(r.Body).Decode(&userbody); err != nil {
@@ -379,6 +379,7 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        otp  body  admin.ChangePasswordInput true  "change password"
 // @Param        id  query  string true  "user id"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {string} kksks
 // @Failure      400  {string}  coin required
 // @Router       /admin/changePassword [post]
@@ -454,6 +455,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        otp  body  admin.ChangeTimeframeInput true  "change timeframe"
 // @Param        id  query  string true  "user id"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {string} kksks
 // @Failure      400  {string}  coin required
 // @Router       /admin/changetimeframe [post]
@@ -511,6 +513,7 @@ type TimeframeResp struct {
 // @Accept       json
 // @Produce      json
 // @Param        id  query  string true  "user id"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object} TimeframeResp
 // @Failure      400  {string}  coin required
 // @Failure      500  {string}  coin required

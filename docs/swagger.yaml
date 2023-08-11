@@ -94,6 +94,30 @@ definitions:
       otp_verified:
         type: boolean
     type: object
+  controllers.ExchangeModel:
+    properties:
+      connected:
+        type: boolean
+      id:
+        type: integer
+      image_src:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      short:
+        type: string
+    type: object
+  controllers.ExchangeResp:
+    properties:
+      api_key:
+        type: string
+      passphrase:
+        type: string
+      secret:
+        type: string
+    type: object
   controllers.GetConditionRes:
     properties:
       conditions:
@@ -123,6 +147,17 @@ definitions:
         type: string
       otp_verified:
         type: boolean
+    type: object
+  controllers.NoUsersResp:
+    properties:
+      active_trades:
+        type: integer
+      successful:
+        type: integer
+      transactions:
+        type: integer
+      users:
+        type: integer
     type: object
   controllers.OtpGenResp:
     properties:
@@ -161,6 +196,15 @@ definitions:
         example: admin
         type: string
     type: object
+  controllers.UserSettingsResp:
+    properties:
+      auto_compound:
+        type: boolean
+      mode:
+        type: string
+      strategy:
+        type: string
+    type: object
   models.GroupedPosition:
     properties:
       hedgeID:
@@ -169,6 +213,64 @@ definitions:
         items:
           $ref: '#/definitions/models.Position'
         type: array
+    type: object
+  models.Key:
+    properties:
+      api_key:
+        description: |-
+          Api Key
+          example: 829sksh8jws9020wp
+        type: string
+      compound:
+        description: |-
+          Auto Compound
+          example: true
+        type: boolean
+      key_id:
+        description: |-
+          ID of Key
+          example: 9283939ede-829kskiisii2-kdeoidekeo2-ieodke9ese
+        type: string
+      mode:
+        description: |-
+          Mode
+          example: conservative
+        type: string
+      passphrase:
+        description: |-
+          Passphrase
+          example: thisisapassphrase
+        type: string
+      secret:
+        description: |-
+          Secret Key
+          example: 7276shsjj299skwks93ls
+        type: string
+      service:
+        description: |-
+          Exchange of key
+          example: bitget
+        type: string
+      start:
+        description: |-
+          Enable Key
+          example: true
+        type: boolean
+      strategy:
+        description: |-
+          Strategy
+          example: cycle
+        type: string
+      trade_amount:
+        description: |-
+          Trade Amount
+          example: 200
+        type: integer
+      user_email:
+        description: |-
+          User Email
+          example: abc@gmail.com
+        type: string
     type: object
   models.Order:
     properties:
@@ -254,6 +356,13 @@ definitions:
       user_email:
         type: string
     type: object
+  models.Result:
+    properties:
+      profit:
+        type: number
+      symbol:
+        type: string
+    type: object
   models.Statements:
     properties:
       closed_pnl:
@@ -277,6 +386,35 @@ definitions:
       updated_time:
         type: string
       user_email:
+        type: string
+    type: object
+  models.User:
+    properties:
+      confirmed:
+        type: boolean
+      country:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      mode:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      strategy:
+        type: string
+      time_zone:
+        type: string
+      updated_at:
+        type: string
+      user_name:
         type: string
     type: object
 host: localhost:8080
@@ -463,6 +601,38 @@ paths:
       - coins
   /admin/conditions:
     get:
+      consumes:
+      - application/json
+      description: get conditions
+      parameters:
+      - description: page number
+        in: query
+        name: page
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GetConditionRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Conditions
+      tags:
+      - conditions
+    put:
       consumes:
       - application/json
       description: update conditions
@@ -663,6 +833,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/admin.RegisterUserInput'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -685,6 +860,25 @@ paths:
       summary: Sign Up Admin User
       tags:
       - auth
+  /admin/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get Number Of Users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.NoUsersResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Number Of Users
+      tags:
+      - users
   /admin/timeframe:
     post:
       consumes:
@@ -712,6 +906,158 @@ paths:
           schema:
             type: string
       summary: Get Timeframe
+      tags:
+      - auth
+  /all-keys:
+    get:
+      consumes:
+      - application/json
+      description: Get All User Keys
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Key'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get All User Keys
+      tags:
+      - accounts
+  /connected:
+    get:
+      consumes:
+      - application/json
+      description: Get User Connected Accounts
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.ExchangeModel'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get User Connected Accounts
+      tags:
+      - accounts
+  /disconnect:
+    delete:
+      consumes:
+      - application/json
+      description: Disconnect Key
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Disconnect Key
+      tags:
+      - keys
+  /exchange-keys:
+    get:
+      consumes:
+      - application/json
+      description: Get User Exchnage Keys
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: exchange
+        in: query
+        name: exchange
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ExchangeResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get User Exchnage Keys
+      tags:
+      - accounts
+  /generate-token:
+    post:
+      consumes:
+      - application/json
+      description: generate token
+      parameters:
+      - description: user body
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.CoinPair'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Generate JWT Token
       tags:
       - auth
   /hedge-positions:
@@ -746,6 +1092,76 @@ paths:
       summary: Get User Cleared Hedge Positions
       tags:
       - orders
+  /keys/settings:
+    get:
+      consumes:
+      - application/json
+      description: Get User Settings
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserSettingsResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get User Settings
+      tags:
+      - keys
+    put:
+      consumes:
+      - application/json
+      description: Update Key Settings
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: key
+        in: body
+        name: key
+        required: true
+        schema:
+          $ref: '#/definitions/models.Key'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Key'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update Key Settings
+      tags:
+      - keys
   /listing/coinwise:
     get:
       consumes:
@@ -772,7 +1188,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.ListingResp'
+            items:
+              $ref: '#/definitions/models.Result'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -932,4 +1350,70 @@ paths:
       summary: Get User Open Positions
       tags:
       - orders
+  /statements:
+    get:
+      consumes:
+      - application/json
+      description: Get Statements Of User
+      parameters:
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Statements'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Statements Of User
+      tags:
+      - users
+  /sync-account-data:
+    post:
+      consumes:
+      - application/json
+      description: Sync Client Data With Backend
+      parameters:
+      - description: users
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Sync Client Data With Backend
+      tags:
+      - keys
 swagger: "2.0"

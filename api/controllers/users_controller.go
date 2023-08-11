@@ -59,7 +59,7 @@ type NoUsersResp struct {
 // @Produce      json
 // @Success      200  {object}  NoUsersResp
 // @Failure      500  {string}  coin required
-// @Router       /hedge-positions [get]
+// @Router       /admin/stats [get]
 func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 
 	key := models.Key{}
@@ -101,7 +101,7 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  []models.Statements
 // @Failure      400  {string}  coin required
 // @Failure      500  {string}  coin required
-// @Router       /hedge-positions [get]
+// @Router       /statements [get]
 func (server *Server) GetStatements(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -124,42 +124,6 @@ func (server *Server) GetStatements(w http.ResponseWriter, r *http.Request, emai
 		return
 	}
 	response.JSON(w, http.StatusOK, sts)
-}
-
-// Get User Trade History godoc
-// @Summary      Get User Trade History
-// @Description  Get User Trade History
-// @Tags         users
-// @Accept       json
-// @Produce      json
-// @Param        email  query  string true  "email"
-// @Param        service  query  string true  "service"
-// @Success      200  {object}  []models.History
-// @Failure      400  {string}  coin required
-// @Failure      500  {string}  coin required
-// @Router       /hedge-positions [get]
-func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email string) {
-	service := r.URL.Query().Get("service")
-
-	if service == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("service is required"))
-		return
-	}
-
-	hist := models.History{}
-	history, err := hist.GetHistory(server.DB, email, service)
-	if err != nil {
-		response.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	if len(*history) == 0 {
-		res := make(map[string]string)
-		res["msg"] = "record not found"
-		response.JSON(w, http.StatusOK, res)
-		return
-	}
-	response.JSON(w, http.StatusOK, history)
 }
 
 // Update Key Settings godoc

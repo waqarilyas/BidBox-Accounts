@@ -17,6 +17,7 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        coin  body  string   true  "coin pair"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object}  admin.CoinPair
 // @Failure      422  {string}  coin required
 // @Failure      500  {string}  server error
@@ -55,6 +56,7 @@ func (server *Server) CreateCoin(w http.ResponseWriter, r *http.Request) {
 // @Tags         coins
 // @Accept       json
 // @Produce      json
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object}  []admin.CoinPair
 // @Failure      500  {string}  server error
 // @Router       /admin/coins [get]
@@ -77,6 +79,7 @@ func (server *Server) GetCoins(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        coin  body  admin.CoinPair  false  "coin pair"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {object}  admin.CoinPair
 // @Failure      422  {string}  coin required
 // @Failure      500  {string}  server error
@@ -122,6 +125,7 @@ func (server *Server) UpdateCoin(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        coin  query  string true "coin pair"
+// @Param        Authorization  header  string  true  "Authorization"
 // @Success      200  {string}  deleted row
 // @Failure      400  {string}  coin required
 // @Failure      500  {string}  server error
