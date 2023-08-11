@@ -10,6 +10,22 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
+type UserSettingsResp struct {
+	Strategy     string `json:"strategy"`
+	Mode         string `json:"mode"`
+	AutoCompound bool   `json:"auto_compound"`
+}
+
+// Get User Settings godoc
+// @Summary      Get User Settings
+// @Description  Get User Settings
+// @Tags         keys
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  UserSettingsResp
+// @Failure      500  {string}  coin required
+// @Router       /keys/settings [get]
 func (server *Server) GetSettings(w http.ResponseWriter, r *http.Request, email string) {
 	key := models.Key{}
 	keys, err := key.GetSettings(server.DB, email)
@@ -28,6 +44,22 @@ func (server *Server) GetSettings(w http.ResponseWriter, r *http.Request, email 
 	response.JSON(w, http.StatusOK, res)
 }
 
+type NoUsersResp struct {
+	Users        int `json:"users"`
+	ActiveTrades int `json:"active_trades"`
+	Successful   int `json:"successful"`
+	Transactions int `json:"transactions"`
+}
+
+// Get Number Of Users godoc
+// @Summary      Get Number Of Users
+// @Description  Get Number Of Users
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  NoUsersResp
+// @Failure      500  {string}  coin required
+// @Router       /hedge-positions [get]
 func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 
 	key := models.Key{}
@@ -42,12 +74,6 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	// order := models.Order{}
-	// c1, err := order.GetActiveTrades(server.DB)
-	// if err != nil {
-	// 	response.ERROR(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
 
 	hist := models.Position{}
 	c2, err := hist.GetSuccessfulPositions(server.DB)
@@ -64,6 +90,18 @@ func (server *Server) GetNoOfUsers(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, res)
 }
 
+// Get Statements Of User godoc
+// @Summary      Get Statements Of User
+// @Description  Get Statements Of User
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Param        service  query  string true  "service"
+// @Success      200  {object}  []models.Statements
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /hedge-positions [get]
 func (server *Server) GetStatements(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -88,6 +126,18 @@ func (server *Server) GetStatements(w http.ResponseWriter, r *http.Request, emai
 	response.JSON(w, http.StatusOK, sts)
 }
 
+// Get User Trade History godoc
+// @Summary      Get User Trade History
+// @Description  Get User Trade History
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Param        service  query  string true  "service"
+// @Success      200  {object}  []models.History
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /hedge-positions [get]
 func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -112,6 +162,20 @@ func (server *Server) GetHistory(w http.ResponseWriter, r *http.Request, email s
 	response.JSON(w, http.StatusOK, history)
 }
 
+// Update Key Settings godoc
+// @Summary      Update Key Settings
+// @Description  Update Key Settings
+// @Tags         keys
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Param        service  query  string true  "service"
+// @Param        key  body  models.Key true  "key"
+// @Success      200  {object}  []models.Key
+// @Failure      400  {string}  coin required
+// @Failure      422  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /keys/settings [put]
 func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -151,6 +215,18 @@ func (server *Server) UpdateKeySettings(w http.ResponseWriter, r *http.Request, 
 	response.JSON(w, http.StatusOK, updatedkey)
 }
 
+// Disconnect Key godoc
+// @Summary      Disconnect Key
+// @Description  Disconnect Key
+// @Tags         keys
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Param        service  query  string true  "service"
+// @Success      200  {string}  res disconnect key
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /disconnect [delete]
 func (s *Server) DisconnectKey(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -169,6 +245,17 @@ func (s *Server) DisconnectKey(w http.ResponseWriter, r *http.Request, email str
 	response.JSON(w, http.StatusOK, "disconnected key")
 }
 
+// Sync Client Data With Backend godoc
+// @Summary      Sync Client Data With Backend
+// @Description  Sync Client Data With Backend
+// @Tags         keys
+// @Accept       json
+// @Produce      json
+// @Param        user  body  models.User true  "users"
+// @Success      200  {object}  models.User
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /sync-account-data [post]
 func (s *Server) SyncDataWithClientBackend(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -235,28 +322,4 @@ func (s *Server) SyncDataWithClientBackend(w http.ResponseWriter, r *http.Reques
 		response.JSON(w, http.StatusOK, existingUser)
 		return
 	}
-}
-
-func (server *Server) GetPositionHistory(w http.ResponseWriter, r *http.Request, email string) {
-	service := r.URL.Query().Get("service")
-
-	if service == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("service is required"))
-		return
-	}
-
-	st := models.Position{}
-	sts, err := st.GetClosedPositions(server.DB, email, service)
-	if err != nil {
-		response.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	if len(*sts) == 0 {
-		res := make(map[string]string)
-		res["msg"] = "record not found"
-		response.JSON(w, http.StatusOK, res)
-		return
-	}
-	response.JSON(w, http.StatusOK, sts)
 }

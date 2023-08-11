@@ -71,7 +71,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/getSettings", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.getSettings))).Methods("GET")
 
 	s.HandleFunc("/getTimeframe", middleware.MiddlewareAuth(middleware.MiddlewareJSON(r.GetTimeframe))).Methods("GET")
-	s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
+	//s.HandleFunc("/history", middleware.ValidateEmail(r.GetPositionHistory)).Methods("GET")
 	// s.HandleFunc("/closePositions", middleware.MiddlewareJSON(r.GetClosedPositionsByEmail)).Methods("GET")
 
 	// listing
