@@ -60,6 +60,18 @@ func (s *Server) GenerateJWT(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, res)
 }
 
+// Sign Up New Admin User godoc
+// @Summary      Sign Up Admin User
+// @Description  sign up admin user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  admin.RegisterUserInput true  "user body"
+// @Success      201  {string}  Registered succesfully
+// @Failure      400  {string}  coin required
+// @Failure      409  {string}  coin required
+// @Failure      502  {string}  server error
+// @Router       /admin/register [post]
 func (s *Server) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.RegisterUserInput
 
@@ -92,6 +104,24 @@ func (s *Server) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, "Registered successfully, please login")
 }
 
+type LoginResp struct {
+	Id          string `json:"id"`
+	Email       string `json:"email"`
+	OtpVerified bool   `json:"otp_verified"`
+	JwtToken    string `json:"jwt_token"`
+}
+
+// Login Admin godoc
+// @Summary      Login Admin
+// @Description  login admin
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  admin.LoginUserInput true  "user login body"
+// @Success      200  {object} LoginResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/login [post]
 func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.LoginUserInput
 
@@ -132,6 +162,22 @@ func (s *Server) LoginUser(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, userResponse)
 }
 
+type OtpGenResp struct {
+	Base32     string `json:"base32"`
+	OtpauthUrl string `json:"otpauth_url"`
+}
+
+// Generate OTP godoc
+// @Summary      Generate OTP
+// @Description  generate otp
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  admin.OTPInput true  "otp input"
+// @Success      200  {object} OtpGenResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/otp/generate [post]
 func (s *Server) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPInput
 
@@ -170,6 +216,24 @@ func (s *Server) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, otpResponse)
 }
 
+type OtpVerifyResp struct {
+	Id          string `json:"id"`
+	Email       string `json:"email"`
+	OtpVerified bool   `json:"otp_verified"`
+	Token       string `json:"token"`
+}
+
+// Verify OTP godoc
+// @Summary      Verify OTP
+// @Description  verify otp
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  admin.OTPInput true  "otp input"
+// @Success      200  {object} OtpVerifyResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /admin/otp/verify [post]
 func (s *Server) VerifyOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPInput
 
@@ -213,6 +277,20 @@ func (s *Server) VerifyOTP(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, userResponse)
 }
 
+type OtpValidResp struct {
+	OtpValid bool `json:"otp_valid"`
+}
+
+// Validate OTP godoc
+// @Summary      Validate OTP
+// @Description  validate otp
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body  admin.OTPInput true  "otp input"
+// @Success      200  {object} OtpValidResp
+// @Failure      400  {string}  coin required
+// @Router       /admin/otp/validate [post]
 func (s *Server) ValidateOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPInput
 
@@ -241,6 +319,18 @@ func (s *Server) ValidateOTP(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, resp)
 }
 
+// Enable OTP godoc
+// @Summary      Enable OTP
+// @Description  enable otp
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        otp  body  admin.OTPResponse true  "otp enable"
+// @Param        id  query  string true  "user id"
+// @Success      200  {object} admin.Resp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /admin/otp/enable [post]
 func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 	var payload *admin.OTPResponse
 
@@ -281,6 +371,17 @@ func (s *Server) EnableOTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Change Password godoc
+// @Summary      Change Password
+// @Description  change password
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        otp  body  admin.ChangePasswordInput true  "change password"
+// @Param        id  query  string true  "user id"
+// @Success      200  {string} kksks
+// @Failure      400  {string}  coin required
+// @Router       /admin/changePassword [post]
 func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
@@ -345,8 +446,17 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, "Password successfully updated")
 }
 
-// comment
-
+// Change Timeframe godoc
+// @Summary      Change Timeframe
+// @Description  change timeframe
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        otp  body  admin.ChangeTimeframeInput true  "change timeframe"
+// @Param        id  query  string true  "user id"
+// @Success      200  {string} kksks
+// @Failure      400  {string}  coin required
+// @Router       /admin/changetimeframe [post]
 func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
@@ -390,13 +500,28 @@ func (s *Server) changeTimeframe(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, "TimeFrame successfully updated")
 }
 
+type TimeframeResp struct {
+	Timeframe string `json:"timeframe"`
+}
+
+// Get Timeframe godoc
+// @Summary      Get Timeframe
+// @Description  get timeframe
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        id  query  string true  "user id"
+// @Success      200  {object} TimeframeResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /admin/timeframe [post]
 func (server *Server) GetTimeframe(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		response.ERROR(w, http.StatusBadRequest, errors.New("id is required as query param"))
 		return
 	}
-	key := *&admin.Settings{}
+	key := &admin.Settings{}
 
 	timeframe, err := key.GetTimeframe(server.DB)
 	if err != nil {

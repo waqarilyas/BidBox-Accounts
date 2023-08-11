@@ -14,7 +14,7 @@ import (
 )
 
 type GetConditionRes struct {
-	Total      int `example:"total"`
+	Total      int `example:"999"`
 	Conditions []admin.Conditions
 }
 

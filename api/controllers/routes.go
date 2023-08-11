@@ -79,7 +79,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/listing/total", middleware.ValidateEmail(r.ListTotal)).Methods("GET")
 	s.HandleFunc("/listing/coinwise", middleware.ValidateEmail(r.ListCoinwise)).Methods("GET")
 
-	// updated code afetr hedging logic
+	// updated code after hedging logic
 
 	s.HandleFunc("/orders", middleware.ValidateEmail(r.GetUserOrders)).Methods("GET")
 	s.HandleFunc("/positions", middleware.ValidateEmail(r.GetUserOpenPositions)).Methods("GET")

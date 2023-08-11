@@ -9,6 +9,25 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
 )
 
+type ListingResp struct {
+	Msg  string              `json:"msg"`
+	Data []models.Statements `json:"data"`
+}
+
+// Today's Statements godoc
+// @Summary      Today's Statements
+// @Description  Today's Statements
+// @Tags         listing
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Param        page  query  string false  "page"
+// @Param        limit  query  string false  "limit"
+// @Success      200  {object}  ListingResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /listing/today [get]
 func (server *Server) ListToday(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -49,6 +68,20 @@ func (server *Server) ListToday(w http.ResponseWriter, r *http.Request, email st
 	response.JSON(w, http.StatusOK, res)
 }
 
+// Total Statements godoc
+// @Summary      Total Statements
+// @Description  Total Statements
+// @Tags         listing
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Param        page  query  string false  "page"
+// @Param        limit  query  string false  "limit"
+// @Success      200  {object}  ListingResp
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /listing/total [get]
 func (server *Server) ListTotal(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 
@@ -88,6 +121,19 @@ func (server *Server) ListTotal(w http.ResponseWriter, r *http.Request, email st
 	response.JSON(w, http.StatusOK, res)
 }
 
+// Coinwise Statements godoc
+// @Summary      Coinwise Statements
+// @Description  Coinwise Statements
+// @Tags         listing
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Param        time  query  string false  "time"
+// @Success      200  {object}  []models.Result
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  server error
+// @Router       /listing/coinwise [get]
 func (server *Server) ListCoinwise(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 

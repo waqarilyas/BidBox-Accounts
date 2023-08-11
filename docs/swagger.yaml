@@ -1,5 +1,22 @@
 basePath: /accounts
 definitions:
+  admin.ChangePasswordInput:
+    properties:
+      new_password:
+        type: string
+      password:
+        type: string
+    required:
+    - new_password
+    - password
+    type: object
+  admin.ChangeTimeframeInput:
+    properties:
+      timeframe:
+        type: string
+    required:
+    - timeframe
+    type: object
   admin.CoinPair:
     properties:
       active:
@@ -15,6 +32,253 @@ definitions:
         example: 80
         type: integer
     type: object
+  admin.Conditions:
+    properties:
+      capital:
+        example: 300
+        type: integer
+      leverage:
+        example: 80
+        type: integer
+      positions:
+        example: 2
+        type: integer
+      stop_loss:
+        example: 80
+        type: integer
+      take_profit:
+        example: 2
+        type: integer
+    type: object
+  admin.LoginUserInput:
+    properties:
+      UserId:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  admin.OTPInput:
+    properties:
+      id:
+        type: string
+      token:
+        type: string
+    type: object
+  admin.OTPResponse:
+    properties:
+      otp_enabled:
+        type: string
+    type: object
+  admin.RegisterUserInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  admin.Resp:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      otp_verified:
+        type: boolean
+    type: object
+  controllers.GetConditionRes:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/admin.Conditions'
+        type: array
+      total:
+        example: 999
+        type: integer
+    type: object
+  controllers.ListingResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Statements'
+        type: array
+      msg:
+        type: string
+    type: object
+  controllers.LoginResp:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      jwt_token:
+        type: string
+      otp_verified:
+        type: boolean
+    type: object
+  controllers.OtpGenResp:
+    properties:
+      base32:
+        type: string
+      otpauth_url:
+        type: string
+    type: object
+  controllers.OtpValidResp:
+    properties:
+      otp_valid:
+        type: boolean
+    type: object
+  controllers.OtpVerifyResp:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      otp_verified:
+        type: boolean
+      token:
+        type: string
+    type: object
+  controllers.TimeframeResp:
+    properties:
+      timeframe:
+        type: string
+    type: object
+  controllers.UserBody:
+    properties:
+      password:
+        example: "123"
+        type: string
+      username:
+        example: admin
+        type: string
+    type: object
+  models.GroupedPosition:
+    properties:
+      hedgeID:
+        type: string
+      positions:
+        items:
+          $ref: '#/definitions/models.Position'
+        type: array
+    type: object
+  models.Order:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      fee:
+        type: number
+      id:
+        type: string
+      margin_coin:
+        type: string
+      order_id:
+        type: string
+      order_price:
+        type: string
+      order_type:
+        type: string
+      position_id:
+        type: integer
+      profit:
+        type: number
+      quote_amount:
+        type: string
+      service:
+        type: string
+      side:
+        type: string
+      size:
+        type: string
+      symbol:
+        type: string
+    type: object
+  models.Position:
+    properties:
+      created_at:
+        type: string
+      exchange:
+        type: string
+      fee:
+        type: number
+      first_buy_amount:
+        type: string
+      hedge_id:
+        type: string
+      id:
+        type: integer
+      last_update_price:
+        type: string
+      layer:
+        type: integer
+      leverage:
+        type: string
+      liq_price:
+        type: string
+      margin:
+        type: string
+      mark_price:
+        type: string
+      open_price:
+        type: string
+      order_id:
+        type: string
+      side:
+        type: string
+      size:
+        type: string
+      status:
+        type: string
+      stop_loss:
+        type: string
+      symbol:
+        type: string
+      take_profit:
+        type: string
+      total_profit:
+        type: number
+      unrealized_pl:
+        type: string
+      updated_at:
+        type: string
+      user_email:
+        type: string
+    type: object
+  models.Statements:
+    properties:
+      closed_pnl:
+        type: number
+      created_time:
+        type: string
+      exchange:
+        type: string
+      position_id:
+        type: integer
+      profit_usd:
+        type: number
+      quote_amount:
+        type: number
+      side:
+        type: string
+      size:
+        type: number
+      symbol:
+        type: string
+      updated_time:
+        type: string
+      user_email:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -29,6 +293,68 @@ info:
   title: BidBox Accounts Service API
   version: "1.0"
 paths:
+  /admin/changePassword:
+    post:
+      consumes:
+      - application/json
+      description: change password
+      parameters:
+      - description: change password
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ChangePasswordInput'
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Change Password
+      tags:
+      - auth
+  /admin/changetimeframe:
+    post:
+      consumes:
+      - application/json
+      description: change timeframe
+      parameters:
+      - description: change timeframe
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ChangeTimeframeInput'
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Change Timeframe
+      tags:
+      - auth
   /admin/coins:
     delete:
       consumes:
@@ -135,4 +461,475 @@ paths:
       summary: Update Coin
       tags:
       - coins
+  /admin/conditions:
+    get:
+      consumes:
+      - application/json
+      description: update conditions
+      parameters:
+      - description: capital
+        in: query
+        name: capital
+        required: true
+        type: integer
+      - description: condition
+        in: body
+        name: condition
+        required: true
+        schema:
+          $ref: '#/definitions/admin.Conditions'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.Conditions'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update Conditions
+      tags:
+      - conditions
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: login admin
+      parameters:
+      - description: user login body
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/admin.LoginUserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Login Admin
+      tags:
+      - auth
+  /admin/otp/enable:
+    post:
+      consumes:
+      - application/json
+      description: enable otp
+      parameters:
+      - description: otp enable
+        in: body
+        name: otp
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OTPResponse'
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.Resp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Enable OTP
+      tags:
+      - auth
+  /admin/otp/generate:
+    post:
+      consumes:
+      - application/json
+      description: generate otp
+      parameters:
+      - description: otp input
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.OtpGenResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Generate OTP
+      tags:
+      - auth
+  /admin/otp/validate:
+    post:
+      consumes:
+      - application/json
+      description: validate otp
+      parameters:
+      - description: otp input
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.OtpValidResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Validate OTP
+      tags:
+      - auth
+  /admin/otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: verify otp
+      parameters:
+      - description: otp input
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/admin.OTPInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.OtpVerifyResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Verify OTP
+      tags:
+      - auth
+  /admin/register:
+    post:
+      consumes:
+      - application/json
+      description: sign up admin user
+      parameters:
+      - description: user body
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/admin.RegisterUserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "502":
+          description: Bad Gateway
+          schema:
+            type: string
+      summary: Sign Up Admin User
+      tags:
+      - auth
+  /admin/timeframe:
+    post:
+      consumes:
+      - application/json
+      description: get timeframe
+      parameters:
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TimeframeResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Timeframe
+      tags:
+      - auth
+  /hedge-positions:
+    get:
+      consumes:
+      - application/json
+      description: Get User Cleared Hedge Positions
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GroupedPosition'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get User Cleared Hedge Positions
+      tags:
+      - orders
+  /listing/coinwise:
+    get:
+      consumes:
+      - application/json
+      description: Coinwise Statements
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: time
+        in: query
+        name: time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ListingResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Coinwise Statements
+      tags:
+      - listing
+  /listing/today:
+    get:
+      consumes:
+      - application/json
+      description: Today's Statements
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ListingResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Today's Statements
+      tags:
+      - listing
+  /listing/total:
+    get:
+      consumes:
+      - application/json
+      description: Total Statements
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ListingResp'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Total Statements
+      tags:
+      - listing
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get User Orders
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Order'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get User Orders
+      tags:
+      - orders
+  /positions:
+    get:
+      consumes:
+      - application/json
+      description: Get User Open Positions
+      parameters:
+      - description: service
+        in: query
+        name: service
+        required: true
+        type: string
+      - description: email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Position'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get User Open Positions
+      tags:
+      - orders
 swagger: "2.0"

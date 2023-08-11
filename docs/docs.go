@@ -25,6 +25,100 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/changePassword": {
+            "post": {
+                "description": "change password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change Password",
+                "parameters": [
+                    {
+                        "description": "change password",
+                        "name": "otp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.ChangePasswordInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/changetimeframe": {
+            "post": {
+                "description": "change timeframe",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change Timeframe",
+                "parameters": [
+                    {
+                        "description": "change timeframe",
+                        "name": "otp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.ChangeTimeframeInput"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/coins": {
             "get": {
                 "description": "get coins",
@@ -185,9 +279,748 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/admin/conditions": {
+            "get": {
+                "description": "update conditions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "conditions"
+                ],
+                "summary": "Update Conditions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "capital",
+                        "name": "capital",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "condition",
+                        "name": "condition",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.Conditions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.Conditions"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/login": {
+            "post": {
+                "description": "login admin",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login Admin",
+                "parameters": [
+                    {
+                        "description": "user login body",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.LoginUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.LoginResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/otp/enable": {
+            "post": {
+                "description": "enable otp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable OTP",
+                "parameters": [
+                    {
+                        "description": "otp enable",
+                        "name": "otp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.OTPResponse"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.Resp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/otp/generate": {
+            "post": {
+                "description": "generate otp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Generate OTP",
+                "parameters": [
+                    {
+                        "description": "otp input",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.OTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.OtpGenResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/otp/validate": {
+            "post": {
+                "description": "validate otp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Validate OTP",
+                "parameters": [
+                    {
+                        "description": "otp input",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.OTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.OtpValidResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/otp/verify": {
+            "post": {
+                "description": "verify otp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Verify OTP",
+                "parameters": [
+                    {
+                        "description": "otp input",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.OTPInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.OtpVerifyResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/register": {
+            "post": {
+                "description": "sign up admin user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign Up Admin User",
+                "parameters": [
+                    {
+                        "description": "user body",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.RegisterUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/timeframe": {
+            "post": {
+                "description": "get timeframe",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get Timeframe",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TimeframeResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/hedge-positions": {
+            "get": {
+                "description": "Get User Cleared Hedge Positions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get User Cleared Hedge Positions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.GroupedPosition"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/listing/coinwise": {
+            "get": {
+                "description": "Coinwise Statements",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "Coinwise Statements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "time",
+                        "name": "time",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ListingResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/listing/today": {
+            "get": {
+                "description": "Today's Statements",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "Today's Statements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ListingResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/listing/total": {
+            "get": {
+                "description": "Total Statements",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "listing"
+                ],
+                "summary": "Total Statements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ListingResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "get": {
+                "description": "Get User Orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get User Orders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Order"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/positions": {
+            "get": {
+                "description": "Get User Open Positions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get User Open Positions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Position"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "admin.ChangePasswordInput": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.ChangeTimeframeInput": {
+            "type": "object",
+            "required": [
+                "timeframe"
+            ],
+            "properties": {
+                "timeframe": {
+                    "type": "string"
+                }
+            }
+        },
         "admin.CoinPair": {
             "type": "object",
             "properties": {
@@ -206,6 +1039,381 @@ const docTemplate = `{
                 "leverage": {
                     "type": "integer",
                     "example": 80
+                }
+            }
+        },
+        "admin.Conditions": {
+            "type": "object",
+            "properties": {
+                "capital": {
+                    "type": "integer",
+                    "example": 300
+                },
+                "leverage": {
+                    "type": "integer",
+                    "example": 80
+                },
+                "positions": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "stop_loss": {
+                    "type": "integer",
+                    "example": 80
+                },
+                "take_profit": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "admin.LoginUserInput": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "UserId": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.OTPInput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.OTPResponse": {
+            "type": "object",
+            "properties": {
+                "otp_enabled": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.RegisterUserInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.Resp": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "otp_verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.GetConditionRes": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin.Conditions"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 999
+                }
+            }
+        },
+        "controllers.ListingResp": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Statements"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.LoginResp": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "jwt_token": {
+                    "type": "string"
+                },
+                "otp_verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.OtpGenResp": {
+            "type": "object",
+            "properties": {
+                "base32": {
+                    "type": "string"
+                },
+                "otpauth_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.OtpValidResp": {
+            "type": "object",
+            "properties": {
+                "otp_valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "controllers.OtpVerifyResp": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "otp_verified": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.TimeframeResp": {
+            "type": "object",
+            "properties": {
+                "timeframe": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UserBody": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "admin"
+                }
+            }
+        },
+        "models.GroupedPosition": {
+            "type": "object",
+            "properties": {
+                "hedgeID": {
+                    "type": "string"
+                },
+                "positions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Position"
+                    }
+                }
+            }
+        },
+        "models.Order": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "margin_coin": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "order_price": {
+                    "type": "string"
+                },
+                "order_type": {
+                    "type": "string"
+                },
+                "position_id": {
+                    "type": "integer"
+                },
+                "profit": {
+                    "type": "number"
+                },
+                "quote_amount": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                },
+                "side": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Position": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "exchange": {
+                    "type": "string"
+                },
+                "fee": {
+                    "type": "number"
+                },
+                "first_buy_amount": {
+                    "type": "string"
+                },
+                "hedge_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_update_price": {
+                    "type": "string"
+                },
+                "layer": {
+                    "type": "integer"
+                },
+                "leverage": {
+                    "type": "string"
+                },
+                "liq_price": {
+                    "type": "string"
+                },
+                "margin": {
+                    "type": "string"
+                },
+                "mark_price": {
+                    "type": "string"
+                },
+                "open_price": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "side": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "stop_loss": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "take_profit": {
+                    "type": "string"
+                },
+                "total_profit": {
+                    "type": "number"
+                },
+                "unrealized_pl": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Statements": {
+            "type": "object",
+            "properties": {
+                "closed_pnl": {
+                    "type": "number"
+                },
+                "created_time": {
+                    "type": "string"
+                },
+                "exchange": {
+                    "type": "string"
+                },
+                "position_id": {
+                    "type": "integer"
+                },
+                "profit_usd": {
+                    "type": "number"
+                },
+                "quote_amount": {
+                    "type": "number"
+                },
+                "side": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "number"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "updated_time": {
+                    "type": "string"
+                },
+                "user_email": {
+                    "type": "string"
                 }
             }
         }

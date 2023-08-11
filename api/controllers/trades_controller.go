@@ -217,8 +217,17 @@ func (server *Server) GetClosedTrades(w http.ResponseWriter, r *http.Request, em
 	w.Write(json)
 }
 
-// data fetching according to latest hedging logic
-
+// Get User Orders godoc
+// @Summary      Get User Orders
+// @Description  Get User Orders
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  []models.Order
+// @Failure      400  {string}  coin required
+// @Router       /orders [get]
 func (s *Server) GetUserOrders(w http.ResponseWriter, r *http.Request, email string) {
 
 	service := r.URL.Query().Get("service")
@@ -241,6 +250,17 @@ func (s *Server) GetUserOrders(w http.ResponseWriter, r *http.Request, email str
 	response.JSON(w, http.StatusOK, orders)
 }
 
+// Get User Open Positions godoc
+// @Summary      Get User Open Positions
+// @Description  Get User Open Positions
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  []models.Position
+// @Failure      400  {string}  coin required
+// @Router       /positions [get]
 func (s *Server) GetUserOpenPositions(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 	if service == "" {
@@ -262,27 +282,17 @@ func (s *Server) GetUserOpenPositions(w http.ResponseWriter, r *http.Request, em
 	response.JSON(w, http.StatusOK, positionData)
 }
 
-func (s *Server) GetUserClosedPositions(w http.ResponseWriter, r *http.Request, email string) {
-	service := r.URL.Query().Get("service")
-	if service == "" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
-		return
-	}
-
-	if service != "bitget" && service != "binance" && service != "bybit" {
-		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
-		return
-	}
-
-	var positions models.Position
-	positionData, error := positions.GetOpenPositions(s.DB, email, service)
-	if error != nil {
-		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
-		return
-	}
-	response.JSON(w, http.StatusOK, positionData)
-}
-
+// Get User Cleared Hedge Positions godoc
+// @Summary      Get User Cleared Hedge Positions
+// @Description  Get User Cleared Hedge Positions
+// @Tags         orders
+// @Accept       json
+// @Produce      json
+// @Param        service  query  string true  "service"
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  []models.GroupedPosition
+// @Failure      400  {string}  coin required
+// @Router       /hedge-positions [get]
 func (s *Server) UserClearedHedgePositions(w http.ResponseWriter, r *http.Request, email string) {
 	service := r.URL.Query().Get("service")
 	if service == "" {

@@ -17,58 +17,25 @@ type UserConnectedAccountsRequest struct {
 	Email string `json:"email"`
 }
 
-// An ExchangeModel is gives information about the connected exchanges
-// swagger:model ExchangeModel
 type ExchangeModel struct {
-	// Example: bybit
-	Name string `json:"name"`
-	// Example: bybit
-	Short string `json:"short"`
-	// Example: bybit
-	ImageSrc string `json:"image_src"`
-	// Example: 23
-	Id int `json:"id"`
-	// Example: true
-	Connected bool `json:"connected"`
-	// Example: true
-	IsActive bool `json:"is_active"`
+	Name      string `json:"name"`
+	Short     string `json:"short"`
+	ImageSrc  string `json:"image_src"`
+	Id        int    `json:"id"`
+	Connected bool   `json:"connected"`
+	IsActive  bool   `json:"is_active"`
 }
 
-// swagger:model ExchangeRes
-type ExchangeRes struct {
-	// - name: body
-	//  in: body
-	//  description: name and status
-	//  schema:
-	//  type: object
-	//     "$ref": "#/definitions/ExchangeModel"
-	//  required: true
-	Body ExchangeModel `json:"body"`
-}
-
-// swagger:route GET /connected
-//
-// Get Connected exchanges for a user.
-//
-//     Consumes:
-//     - application/json
-//
-//     Produces:
-//     - application/json
-//
-//     Schemes: http, https
-//
-//     Parameters:
-//       + name: email
-//         in: query
-//         description: user email
-//         required: true
-//         type: string
-//
-//     Responses:
-//       default: genericError
-//       200: ExchangeRes
-//       404: connected account not found
+// Get User Connected Accounts godoc
+// @Summary      Get User Connected Accounts
+// @Description  Get User Connected Accounts
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  []ExchangeModel
+// @Failure      404  {string}  coin required
+// @Router       /listing/coinwise [get]
 func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Request, email string) {
 
 	//get all exchanges
@@ -114,6 +81,17 @@ func (server *Server) GetUserConnectedAccounts(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusOK, exchangeResponses)
 }
 
+// Get User Balance By Exchange godoc
+// @Summary      Get User Balance By Exchange
+// @Description  Get User Balance By Exchange
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        exchange  query  string true  "exchange"
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  models.Account
+// @Failure      400  {string}  coin required
+// @Router       /listing/coinwise [get]
 func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Request, email string) {
 	exchange := r.URL.Query().Get("exchange")
 
@@ -150,6 +128,15 @@ func (server *Server) GetUserBalanceByExchange(w http.ResponseWriter, r *http.Re
 	response.JSON(w, http.StatusOK, dbAccount)
 }
 
+// Get Supported Exchanges godoc
+// @Summary      Get Supported Exchanges
+// @Description  Get Supported Exchanges
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.Exchanges
+// @Failure      400  {string}  coin required
+// @Router       /listing/coinwise [get]
 func (server *Server) GetSupportedExchange(w http.ResponseWriter, r *http.Request) {
 	exchange := models.Exchanges{}
 	exchanges, err := exchange.FindAllExchanges(server.DB)
@@ -162,18 +149,17 @@ func (server *Server) GetSupportedExchange(w http.ResponseWriter, r *http.Reques
 	response.JSON(w, http.StatusOK, exchanges)
 }
 
-func (server *Server) UserCheck(w http.ResponseWriter, r *http.Request) {
-	exchange := models.Exchanges{}
-	exchanges, err := exchange.FindAllExchanges(server.DB)
-	if err != nil {
-		// if there are no connected accounts, return a default response
-		response.ERROR(w, http.StatusBadRequest, errors.New("no exchanges Found"))
-		return
-	}
-
-	response.JSON(w, http.StatusOK, exchanges)
-}
-
+// Get All User Keys godoc
+// @Summary      Get All User Keys
+// @Description  Get All User Keys
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Success      200  {object}  []models.Key
+// @Failure      400  {string}  coin required
+// @Failure      500  {string}  coin required
+// @Router       /listing/coinwise [get]
 func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, email string) {
 	userEmail := r.URL.Query().Get("email")
 	if userEmail == "" {
@@ -216,6 +202,23 @@ func (server *Server) GetUserAllKeys(w http.ResponseWriter, r *http.Request, ema
 	response.JSON(w, http.StatusOK, keys)
 }
 
+type ExchangeResp struct {
+	ApiKey     string `json:"api_key"`
+	Passphrase string `json:"passphrase"`
+	Secret     string `json:"secret"`
+}
+
+// Get User Exchnage Keys godoc
+// @Summary      Get User Exchnage Keys
+// @Description  Get User Exchnage Keys
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        email  query  string true  "email"
+// @Param        exchange  query  string true  "exchange"
+// @Success      200  {object}  ExchangeResp
+// @Failure      400  {string}  coin required
+// @Router       /listing/coinwise [get]
 func (server *Server) GetUserExchangeKeys(w http.ResponseWriter, r *http.Request, email string) {
 	exchange := r.URL.Query().Get("exchange")
 	if exchange == "" {
