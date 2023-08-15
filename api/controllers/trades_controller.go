@@ -304,3 +304,23 @@ func (s *Server) UserClearedHedgePositions(w http.ResponseWriter, r *http.Reques
 	}
 	response.JSON(w, http.StatusOK, positionData)
 }
+
+func (s *Server) UserClosedPositions(w http.ResponseWriter, r *http.Request, email string) {
+	service := r.URL.Query().Get("service")
+	if service == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service required"))
+		return
+	}
+
+	if service != "bitget" && service != "binance" && service != "bybit" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("service not supported"))
+		return
+	}
+
+	positionData, error := models.GetPositionCloseOrders(s.DB, email, service)
+	if error != nil {
+		response.ERROR(w, http.StatusOK, errors.New("unable to get orders at the moment, try again later"))
+		return
+	}
+	response.JSON(w, http.StatusOK, positionData)
+}

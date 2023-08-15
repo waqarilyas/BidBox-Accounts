@@ -50,6 +50,7 @@ func (r *Server) initializeRoutes() {
 	// admin settings
 	s.HandleFunc("/changeTimeframe", middleware.MiddlewareJSON(r.changeTimeframe)).Methods("POST")
 	s.HandleFunc("/changeSettings", middleware.MiddlewareJSON(r.changeSettings)).Methods("POST")
+	s.HandleFunc("/settings/ip_addresses", middleware.MiddlewareJSON(r.updateIPAddresses)).Methods("POST")
 	s.HandleFunc("/getSettings", middleware.MiddlewareJSON(r.getSettings)).Methods("GET")
 
 	s.HandleFunc("/getTimeframe", middleware.MiddlewareJSON(r.GetTimeframe)).Methods("GET")
@@ -65,6 +66,7 @@ func (r *Server) initializeRoutes() {
 	s.HandleFunc("/orders", middleware.ValidateEmail(r.GetUserOrders)).Methods("GET")
 	s.HandleFunc("/positions", middleware.ValidateEmail(r.GetUserOpenPositions)).Methods("GET")
 	s.HandleFunc("/hedge-positions", middleware.ValidateEmail(r.UserClearedHedgePositions)).Methods("GET")
+	s.HandleFunc("/position-history", middleware.ValidateEmail(r.UserClosedPositions)).Methods("GET")
 
 	// total stat routes
 	s.HandleFunc("/stats", middleware.ValidateEmail(r.GetAccountStats)).Methods("GET")

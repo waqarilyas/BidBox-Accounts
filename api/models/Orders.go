@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -142,23 +143,6 @@ func GetOrdersByUserEmailAndExchange(db *gorm.DB, email string, exchange string)
 	return dbOrders, nil
 }
 
-// func GetOrdersWithPositionDetails(db *gorm.DB, email string, exchange string) ([]*OrderWithPosition, error) {
-// 	var orders []*OrderWithPosition
-
-// 	err := db.Where("email = ? AND service = ?", email, exchange).
-// 		Order("orders.created_at DESC").
-// 		Joins("JOIN positions ON orders.position_id = positions.id").
-// 		Preload("Order").
-// 		Preload("Position").
-// 		Find(&orders).Error
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return orders, nil
-// }
-
 func GetOrdersWithPositionDetails(db *gorm.DB, email string, exchange string) ([]OrderWithPosition, error) {
 	var ordersWithPosition []OrderWithPosition
 
@@ -214,4 +198,43 @@ func SumAndCountProfitForToday(db *gorm.DB, email string, service string) (float
 	}
 
 	return sumProfit.Float64, count, nil
+}
+
+func (o *Order) GetClosePositionOrders(db *gorm.DB, email string, exchange string) ([]OrderWithPosition, error) {
+	var ordersWithPosition []OrderWithPosition
+
+	err := db.
+		Select("orders.*, positions.*").
+		Table("orders").
+		Joins("JOIN positions ON orders.position_id = positions.id").
+		Where("orders.email = ? AND orders.service = ? And (orders.side = ? OR orders.side = ?)", email, exchange, "close_long", "close_short").
+		Order("orders.created_at DESC").
+		Scan(&ordersWithPosition).
+		Error
+
+	fmt.Println("🚀 ~ file: Orders.go:204 ~ func ~ ordersWithPosition:", ordersWithPosition)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ordersWithPosition, nil
+}
+
+func GetPositionCloseOrders(db *gorm.DB, email string, exchange string) ([]Order, error) {
+	var ordersWithPosition []Order
+
+	err := db.
+		Select("orders.*").
+		Table("orders").
+		Where("orders.email = ? AND orders.service = ? And (orders.side = ? OR orders.side = ?)", email, exchange, "close_long", "close_short").
+		Order("orders.created_at DESC").
+		Scan(&ordersWithPosition).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ordersWithPosition, nil
 }

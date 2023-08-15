@@ -4,14 +4,16 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 )
 
 type Settings struct {
-	Timeframe        string  `json:"timeframe"`
-	Maintainence     bool    `json:"maintainence"`
-	Leverage         int     `json:"leverage"`
-	Layers           int     `json:"layers"`
-	ProfitPercentage float64 `json:"profit_percentage"`
+	Timeframe        string         `json:"timeframe"`
+	Maintainence     bool           `json:"maintainence"`
+	Leverage         int            `json:"leverage"`
+	Layers           int            `json:"layers"`
+	ProfitPercentage float64        `json:"profit_percentage"`
+	IpAdresses       pq.StringArray `json:"ip_addresses"`
 }
 
 type Conditions struct {
@@ -166,4 +168,17 @@ func (s *Settings) GetSettings(db *gorm.DB) (*Settings, error) {
 		return &Settings{}, err
 	}
 	return &setting, nil
+}
+
+func (s *Settings) UpdateIpAddresses(db *gorm.DB, val pq.StringArray) (*Settings, error) {
+	db = db.Model(&Settings{}).
+		UpdateColumns(
+			map[string]interface{}{
+				"ip_addresses": val,
+			},
+		)
+	if db.Error != nil {
+		return &Settings{}, db.Error
+	}
+	return s, nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/models/admin"
 	"github.com/kryptomind/bidboxapi/AccountsService/api/response"
+	"github.com/lib/pq"
 )
 
 func (server *Server) GetConditions(w http.ResponseWriter, r *http.Request) {
@@ -245,4 +246,46 @@ func (server *Server) GetLeaderBoardv2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.JSON(w, http.StatusOK, ords)
+}
+
+func (server *Server) updateIPAddresses(w http.ResponseWriter, r *http.Request) {
+	var data map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	addressesInterface, exists := data["ip_addresses"]
+	if !exists {
+		http.Error(w, "Missing 'ip_addresses' key in request body", http.StatusBadRequest)
+		return
+	}
+
+	addresses, ok := addressesInterface.([]interface{})
+	if !ok {
+		http.Error(w, "Value of 'ip_addresses' key is not an array", http.StatusBadRequest)
+		return
+	}
+
+	if len(addresses) != 3 {
+		http.Error(w, "IP addresses array length must be 3", http.StatusBadRequest)
+		return
+	}
+
+	ipAddresses := make([]string, len(addresses))
+	for i, addrInterface := range addresses {
+		ipAddresses[i] = addrInterface.(string)
+	}
+	pqArray := pq.StringArray(ipAddresses)
+
+	var settings admin.Settings
+
+	_, error := settings.UpdateIpAddresses(server.DB, pqArray)
+	if error != nil {
+		response.ERROR(w, http.StatusInternalServerError, errors.New("something went wrong"))
+	}
+
+	response.JSON(w, http.StatusOK, "ip addresses have been updated successfully")
+
 }
